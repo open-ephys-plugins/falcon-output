@@ -1,0 +1,16 @@
+ 
+// IDL file for one channel 
+
+
+namespace openephysflatbuffer;
+
+table ContinuousData {
+    samples: [float];
+    n_channels: uint32;
+    n_samples: uint32;
+    timestamp: uint64; 
+    message_id: uint64;
+    sample_rate: uint32;
+}
+
+root_type ContinuousData;
