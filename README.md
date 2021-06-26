@@ -1,13 +1,19 @@
-# ZMQInterface plugin
-A plugin enabling the interfacing of [ZeroMQ](http://zeromq.org/) clients to Open Ephys. The interface exposes all data and events and allows to provide events to the application, enabling the creation of advanced visualization and monitoring add-ons. For more information, go to our [wiki](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/1547206701/ZMQInterface) and find out how to use this plugin. 
+# Stream plugin
+
+This plugin allows to stream with low latency continuous dataflow incoming in Open-Ephys via ZMQ packaged following a flatbuffer schema, enabling the creation of advanced visualization and monitoring add-ons. 
+
 
 ## Installation
-### Installing the 0MQ library
-For windows, linux, and mac, the required files are already included for the plugin
+### Dependencies (automatically installed at build time)
 
-### Building the plugins
-Building the plugins requires [CMake](https://cmake.org/). Detailed instructions on how to build open ephys plugins with CMake can be found in [our wiki](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/1259110401/Plugin+CMake+Builds).
+- ZMQ lib - shared lib for windows, linux, and mac already included for the plugin
+- Flatbuffer lib - build at built time (via cmake FetchContent)
 
-## Attribution
-Originally developed by [Francesco Battaglia](https://github.com/fpbattaglia) at [Memory Dynamics Lab](https://www.memorydynamics.org/).
-Updated and maintained by [András Széll](https://github.com/aszell).
+## Main usage 
+
+Communication setup with the OpenEphysZMQ Falcon processor. 
+
+## How to create your own client
+
+- ZMQ communication as Subscriber (no source id)
+- copy the schema fbs to decode the flatbuffer packet
