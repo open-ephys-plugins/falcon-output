@@ -35,6 +35,8 @@ StreamPlugin::StreamPlugin()
     port = 3335;
 
     setProcessorType(PROCESSOR_TYPE_FILTER);
+    if (!socket)
+        createSocket();
 }
 
 StreamPlugin::~StreamPlugin()
@@ -53,10 +55,11 @@ void StreamPlugin::createSocket()
     {
         socket = zmq_socket(context, ZMQ_PUB);
 
-        if (!socket)
+        if (!socket){
             std::cout << "couldn't create a socket" << std::endl;
             std::cout << zmq_strerror(zmq_errno()) << std::endl;
             jassert(false);
+        }
 
         auto urlstring = "tcp://*:" + std::to_string(port);
 
@@ -118,8 +121,6 @@ void StreamPlugin::process(AudioSampleBuffer& buffer)
     if (!socket)
         createSocket();
     
-    // current timestamp is at the end of the buffer; we want to send the timestamp of the first sample instead
-    
     uint64_t firstTs = getTimestamp(0);
     float sampleRate;
 
@@ -137,6 +138,5 @@ void StreamPlugin::process(AudioSampleBuffer& buffer)
     if(getNumSamples(0) > 0){
         sendData(buffer, getNumSamples(0), firstTs, (int)sampleRate);
     }
-
 }
 
