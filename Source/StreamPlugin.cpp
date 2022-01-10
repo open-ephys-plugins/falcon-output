@@ -26,7 +26,7 @@
 #include "StreamPlugin.h"
 
 StreamPlugin::StreamPlugin()
-    : GenericProcessor("Stream Plugin"), flatBuilder(1024)
+    : GenericProcessor("Falcon Output"), flatBuilder(1024)
 {
     context = zmq_ctx_new();
     socket = 0;
@@ -34,7 +34,7 @@ StreamPlugin::StreamPlugin()
     messageNumber = 0;
     port = 3335;
 
-    setProcessorType(PROCESSOR_TYPE_FILTER);
+    setProcessorType(PROCESSOR_TYPE_SINK);
     if (!socket)
         createSocket();
 }

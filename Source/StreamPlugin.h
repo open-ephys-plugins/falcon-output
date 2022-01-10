@@ -45,7 +45,7 @@ public:
     ~StreamPlugin();
 
     virtual bool isSource(){ return false;};
-    virtual bool isSink(){return false;}
+    virtual bool isSink(){return true;}
 
     /** Defines the functionality of the processor.
 

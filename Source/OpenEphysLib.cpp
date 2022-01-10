@@ -49,7 +49,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
         info->apiVersion = PLUGIN_API_VER;
 
         //Name of the Library, used only for information
-        info->name = "StreamPlugin";
+        info->name = "FalconOutput";
 
         //Version of the library, used only for information
         info->libVersion = 1;
@@ -64,8 +64,8 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
         case 0:
             info->type = PluginType::PLUGIN_TYPE_PROCESSOR;; //Type of plugin. See "Source/Processors/PluginManager/OpenEphysPlugin.h" for complete info about the different type structures
             //For processor
-            info->processor.name = "Stream Plugin"; //Processor name shown in the GUI
-            info->processor.type = Plugin::FilterProcessor; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
+            info->processor.name = "Falcon Output"; //Processor name shown in the GUI
+            info->processor.type = Plugin::SinkProcessor; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
             info->processor.creator = &(Plugin::createProcessor<StreamPlugin>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
             break;
         default:
