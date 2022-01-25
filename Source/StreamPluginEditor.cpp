@@ -33,13 +33,13 @@ StreamPluginEditor::StreamPluginEditor(GenericProcessor *parentNode, bool useDef
 
     portEditor = new TextEditor("dataport");
     addAndMakeVisible(portEditor);
-    portEditor->setBounds(10, 110, 40, 16);
+    portEditor->setBounds(32, 45, 80, 23);
     portEditor->setText(std::to_string(StreamProcessor->getPort()));
 
     portButton = new TextButton("set_port");
     addAndMakeVisible(portButton);
-    portButton->setBounds(90, 110, 40, 16);
-    portButton->setButtonText("set port");
+    portButton->setBounds(32, 85, 80, 23);
+    portButton->setButtonText("Set Port");
     portButton->addListener(this);
 
 }
