@@ -1,6 +1,6 @@
 /*
  ------------------------------------------------------------------
- StreamPlugin
+ FalconOutput
  Copyright (C) 2021 - present Neuro-Electronics Research Flanders
 
  This file is part of the Open Ephys GUI
@@ -22,33 +22,48 @@
 
  */
 
-#ifndef STREAMPLUGINEDITOR_H_INCLUDED
-#define STREAMPLUGINEDITOR_H_INCLUDED
+#ifndef FALCONOUTPUTEDITOR_H_INCLUDED
+#define FALCONOUTPUTEDITOR_H_INCLUDED
 
 #include <EditorHeaders.h>
 
-class StreamPlugin;
+class FalconOutput;
 
 struct StreamApplication;
 
-class StreamPluginEditor: public GenericEditor
+class FalconOutputEditor: public GenericEditor,
+                          public ComboBox::Listener
 {
 public:
-    StreamPluginEditor(GenericProcessor *parentNode, bool useDefaultParameters);
-    virtual ~StreamPluginEditor();
-    void setPort(uint32_t port, void callback());
-    void buttonClicked(Button* button) override;
+
+    FalconOutputEditor(GenericProcessor *parentNode);
+
+    virtual ~FalconOutputEditor();
+
+    /** Sets the output stream */
+    void comboBoxChanged(ComboBox *cb) override;
+
 	void startAcquisition() override;
+
 	void stopAcquisition()  override;
 
+    /** Updates available streams*/
+	void updateStreamSelectorOptions();
+
+
 private:
-    TextEditor *portEditor;
-    TextButton *portButton;
-    StreamPlugin *StreamProcessor;
+
+    FalconOutput *falconProcessor;
+
+    std::unique_ptr<ComboBox> streamSelection;
+
+    Array<int> inputStreamIds;
+
+    void setOutputStream(int index);
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StreamPluginEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconOutputEditor)
 
     
 };
 
-#endif  // STREAMPLUGINEDITOR_H_INCLUDED
+#endif  // FALCONOUTPUTEDITOR_H_INCLUDED

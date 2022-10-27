@@ -1,6 +1,6 @@
 /*
  ------------------------------------------------------------------
- StreamPlugin
+ FalconOutput
  Copyright (C) 2021 - present Neuro-Electronics Research Flanders
 
  This file is part of the Open Ephys GUI
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 
 
           std::cout << "Received a packet numero " << data->message_id()
-                    << " (OE packet timestamps = " << data->timestamp()
+                    << " (OE packet sample_num = " << data->sample_num()
                     << ") with " << data->n_samples()
                     << " samples from " << data->n_channels() << " channels." << std::endl;
 

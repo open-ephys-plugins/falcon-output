@@ -21,7 +21,7 @@ if(NOT cppzmq_POPULATED)
 endif()
 
 include_directories(BEFORE SYSTEM "${cppzmq_SOURCE_DIR}")
-target_link_libraries(${ZMQ} cppzmq)
+# target_link_libraries(${ZMQ} cppzmq)
 
 include(FetchContent)
 FetchContent_Declare(
