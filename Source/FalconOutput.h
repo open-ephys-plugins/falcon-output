@@ -38,6 +38,8 @@
 #include "flatbuffers/flatbuffers.h"
 #include "channel_generated.h"
 
+#define MAX_NUM_CHANNELS 5000
+
 class FalconOutput: public GenericProcessor
 {
 public:
@@ -80,6 +82,8 @@ private:
     flatbuffers::FlatBufferBuilder flatBuilder;
 
     Array<int> selectedChannels;
+
+    const float* bufferPtrs[MAX_NUM_CHANNELS];
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FalconOutput);
 

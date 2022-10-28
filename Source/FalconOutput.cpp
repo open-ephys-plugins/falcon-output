@@ -146,8 +146,6 @@ void FalconOutput::process(AudioBuffer<float>& buffer)
 
             if(numSamples == 0)
                 continue;
-            
-            const float **bufferPtrs = new const float*[numChannels];
 
             int i = 0;
             for(auto chan : selectedChannels)
