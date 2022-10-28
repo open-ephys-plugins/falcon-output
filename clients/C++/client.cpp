@@ -61,15 +61,16 @@ int main(int argc, char **argv) {
           }
 
 
-          std::cout << "Received a packet numero " << data->message_id()
-                    << " (OE packet sample_num = " << data->sample_num()
-                    << ") with " << data->n_samples()
-                    << " samples from " << data->n_channels() << " channels." << std::endl;
+          std::cout << "Received packet number: " << data->message_id()
+                    << ", Stream: " << data->stream()->c_str()
+                    << ", Sample_Number: " << data->sample_num()
+                    << ", Samples: " << data->n_samples()
+                    << ", Channels: " << data->n_channels() << std::endl;
 
           // Step 4: Process your data: [sample0/chan0, sample1/chan0, ..., sampleN/chan0, sample0/chan1, sample1/chan1...]
 
-          auto data_in_start_iter = data->samples()->begin();
-          auto data_start_channel2 = data->samples()->begin() + 2* data->n_samples();
+        //   auto data_in_start_iter = data->samples()->begin();
+        //   auto data_start_channel2 = data->samples()->begin() + 2* data->n_samples();
           // process
 
 

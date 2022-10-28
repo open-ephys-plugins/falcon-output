@@ -58,32 +58,15 @@ void FalconOutputEditor::comboBoxChanged(ComboBox* cb)
     }
 }
 	
-// void FalconOutputEditor::buttonClicked(Button* button)
-// {
-//     if (button == portButton)
-//     {
-//         String dport = portEditor->getText();
-//         int dportVal = dport.getIntValue();
-//         if ( (dportVal == 0) && !dport.containsOnly("0")) {
-//             // wrong integer input
-//             CoreServices::sendStatusMessage("Invalid data port value");
-//             portEditor->setText(std::to_string(StreamProcessor->getPort()));
-//         }else {
-//             StreamProcessor->setPort(dportVal);
-//             CoreServices::sendStatusMessage("ZMQ port updated");
-//         }
-//     }
-// }
-
 void FalconOutputEditor::startAcquisition()
 {
-
+	streamSelection->setEnabled(false);
 }
 
 
 void FalconOutputEditor::stopAcquisition()
 {
-
+	streamSelection->setEnabled(true);
 }
 
 

@@ -39,7 +39,7 @@ FalconOutput::FalconOutput()
     if (!socket)
         createSocket();
 
-    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "The input channel data to send");
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "The input channel data to send", true);
 
     addIntParameter(Parameter::GLOBAL_SCOPE, "data_port", "Port number to send data", port, 1000, 65535, true);
 
@@ -61,9 +61,10 @@ void FalconOutput::createSocket()
     {
         socket = zmq_socket(context, ZMQ_PUB);
 
-        if (!socket){
-            std::cout << "couldn't create a socket" << std::endl;
-            std::cout << zmq_strerror(zmq_errno()) << std::endl;
+        if (!socket)
+        {
+            LOGD("Couldn't create a socket");
+            LOGE(zmq_strerror(zmq_errno()));
             jassert(false);
         }
 
@@ -71,8 +72,8 @@ void FalconOutput::createSocket()
 
         if (zmq_bind(socket, urlstring.c_str()))
         {
-            std::cout << "couldn't open data socket" << std::endl;
-            std::cout << zmq_strerror(zmq_errno()) << std::endl;
+            LOGD("Couldn't open data socket");
+            LOGE(zmq_strerror(zmq_errno()));
             jassert(false);
         }
     }
@@ -82,13 +83,13 @@ void FalconOutput::closeSocket()
 {
     if (socket)
     {
-        std::cout << "close data socket" << std::endl;
+        LOGD("Closing data socket");
         zmq_close(socket);
         socket = 0;
     }
 }
 
-void FalconOutput::sendData(AudioBuffer<float>& continuousBuffer,
+void FalconOutput::sendData(const float **bufferChanPtrs,
                             int nChannels, int nSamples,
                             int64 sampleNumber, int sampleRate)
 {
@@ -96,8 +97,9 @@ void FalconOutput::sendData(AudioBuffer<float>& continuousBuffer,
     messageNumber++;
 
     // Create message
-    auto samples = flatBuilder.CreateVector(*(continuousBuffer.getArrayOfReadPointers()), nChannels*nSamples);
-    auto zmqBuffer = openephysflatbuffer::CreateContinuousData(flatBuilder, samples,
+    auto streamName = flatBuilder.CreateString(getDataStream(selectedStream)->getName().toStdString());
+    auto samples = flatBuilder.CreateVector(*(bufferChanPtrs), nChannels*nSamples);
+    auto zmqBuffer = openephysflatbuffer::CreateContinuousData(flatBuilder, samples, streamName,
                                                                nChannels, nSamples, sampleNumber,
                                                                messageNumber, sampleRate);
     flatBuilder.Finish(zmqBuffer);
@@ -131,58 +133,33 @@ void FalconOutput::process(AudioBuffer<float>& buffer)
 {
     if (!socket)
         createSocket();
-    
-    // uint64_t firstTs = getTimestamp(0);
-    // float sampleRate;
-
-    // // Simplified sample rate detection (could check channel type or report
-    // // sampling rate of all channels separately in case they differ)
-    // if (dataChannelArray.size() > 0) 
-    // {
-    //     sampleRate = dataChannelArray[0]->getSampleRate();
-    // }
-    // else 
-    // {   // this should never run - if no data channels, then no data...
-    //     sampleRate = CoreServices::getGlobalSampleRate();
-    // }
-
-    // if(getNumSamples(0) > 0){
-    //     sendData(buffer, getNumSamples(0), firstTs, (int)sampleRate);
-    // }
 
     for (auto stream : dataStreams)
-    {
-        
+    {        
         if ((*stream)["enable_stream"]
             && stream->getStreamId() == selectedStream)
         {
             // Send the sample number of the first sample in the buffer block
             int64 sampleNum = getFirstSampleNumberForBlock(selectedStream) ;
             int numSamples = getNumSamplesInBlock(selectedStream);
-            int numChannels = stream->getContinuousChannels().size();
+            int numChannels = selectedChannels.size();
 
             if(numSamples == 0)
                 continue;
             
-            AudioBuffer<float> streamBuffer;
-            streamBuffer.setSize(numChannels, numSamples);
+            const float **bufferPtrs = new const float*[numChannels];
 
             int i = 0;
             for(auto chan : selectedChannels)
             {
                 int globalChanIndex = stream->getContinuousChannels().getUnchecked(chan)->getGlobalIndex();
 
-                streamBuffer.copyFrom(i,                // dest channel
-                                      0,                // dest sample
-                                      buffer,           // source
-                                      globalChanIndex,  // source channel
-                                      0,                // source sample
-                                      numSamples);      // number of samples
-                
+                bufferPtrs[i] = buffer.getReadPointer(globalChanIndex);
+
                 i++;
             }
 
-            sendData(streamBuffer, numChannels, numSamples, sampleNum, stream->getSampleRate());
+            sendData(bufferPtrs, numChannels, numSamples, sampleNum, (int)stream->getSampleRate());
         }
     }
 }

@@ -24,9 +24,6 @@
 // IDL file for one channel
 
 
-// IDL file for one channel 
-
-
 namespace openephysflatbuffer;
 
 table ContinuousData {

@@ -65,7 +65,7 @@ private:
 
     void setPort(uint32_t new_port);
 
-    void sendData(AudioBuffer<float>& continuousBuffer,
+    void sendData(const float **bufferChanPtrs,
                   int nChannels, int nSamples,
                   int64 sampleNumber, int sampleRate);
 
