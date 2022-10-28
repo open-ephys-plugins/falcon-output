@@ -22,7 +22,7 @@
 
  */
 
-#include <zmq.hpp>
+#include <zmq.h>
 #include <iostream>
 #include <string>
 #include "channel_generated.h"
@@ -36,52 +36,45 @@ int main(int argc, char **argv) {
     int port = 3335;
 
     // Step 1: Create your ZMQ socket
-    zmq::context_t context;
+    auto context = zmq_ctx_new();
     auto tcp_address = "tcp://" + address + ":" + std::to_string(port);
-    zmq::socket_t socket = zmq::socket_t(context, ZMQ_SUB);
+    auto socket = zmq_socket(context, ZMQ_SUB);
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, nullptr, 0);
-    socket.connect(tcp_address);
+    zmq_connect(socket, tcp_address.c_str());
 
     // Step 2 : Loop to receive packets
-
     while(1){
 
-      zmq_msg_t message;
-      zmq_msg_init (&message);
-      const openephysflatbuffer::ContinuousData* data;
+        zmq_msg_t message;
+        zmq_msg_init (&message);
+        const openephysflatbuffer::ContinuousData* data;
 
-      if (zmq_msg_recv(&message, socket, ZMQ_DONTWAIT) != -1) {   // Non-blocking to wait to receive a message
+        if (zmq_msg_recv(&message, socket, ZMQ_DONTWAIT) != -1)  // Non-blocking to wait to receive a message
+        {
 
-      // Step 3: Decode the message
-          try {
-              data = openephysflatbuffer::GetContinuousData(zmq_msg_data(&message));
-          } catch (...) {
-              std::cout << "Impossible to parse the packet received - skipping to the next." << std::endl;
-              continue;
-          }
+            // Step 3: Decode the message
+            try {
+                data = openephysflatbuffer::GetContinuousData(zmq_msg_data(&message));
+            } catch (...) {
+                std::cout << "Impossible to parse the packet received - skipping to the next." << std::endl;
+                continue;
+            }
 
 
-          std::cout << "Received packet number: " << data->message_id()
+            std::cout << "Received packet number: " << data->message_id()
                     << ", Stream: " << data->stream()->c_str()
                     << ", Sample_Number: " << data->sample_num()
                     << ", Samples: " << data->n_samples()
                     << ", Channels: " << data->n_channels() << std::endl;
 
-          // Step 4: Process your data: [sample0/chan0, sample1/chan0, ..., sampleN/chan0, sample0/chan1, sample1/chan1...]
+            // Step 4: Process your data: [sample0/chan0, sample1/chan0, ..., sampleN/chan0, sample0/chan1, sample1/chan1...]
+            // for(auto i = data->samples()->begin(); i < data->samples()->begin() + data->n_samples(); i++)  // Only processing the first channel
+            // {
+            //     std::cout << "Sample Value: " << *i << std::endl;
+            // }
 
-        //   auto data_in_start_iter = data->samples()->begin();
-        //   auto data_start_channel2 = data->samples()->begin() + 2* data->n_samples();
-          // process
-
-
-
-       }
-
-
+        }
 
     }
-
-
-
 
 }
