@@ -231,11 +231,8 @@ bool FalconInput::updateBuffer()
             << ", Samples: " << data->n_samples()
             << ", Channels: " << data->n_channels() << std::endl;*/
 
-        
-
         const int num_samples = data->n_samples();
         
-
         for (int ch = 0; ch < num_channels; ch++)
         {
 
@@ -247,8 +244,11 @@ bool FalconInput::updateBuffer()
 
             for (int i = 0; i < num_samples; i++)
             {
-                samples[num_channels * i + ch] = d->Get(offset);
-
+                if (offset < d->size())
+                {
+                    samples[num_channels * i + ch] = d->Get(offset);
+                }
+                
                 offset++;
 
                 if (ch == 1)
