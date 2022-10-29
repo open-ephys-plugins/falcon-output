@@ -61,12 +61,9 @@ public:
     int getNumChannels() const;
 
     // User defined
-    int port;
+    int port = 3335;
+    std::string address = "127.0.0.1";
     float sample_rate;
-    float data_scale;
-    uint16_t data_offset;
-    bool transpose = true;
-    int num_samp;
     int num_channels;
 
     int64 total_samples;
@@ -91,20 +88,12 @@ private:
 
     void* socket;
     void* context;
-
     zmq_msg_t message;
-    
-    Array<int64> sampleNumbers;
-    Array<double> timestamps;
-    Array<uint64> ttlEventWords;
 
     float samples[MAX_NUM_SAMPLES * MAX_NUM_CHANNELS];
     double timestamp_s[MAX_NUM_SAMPLES];
     uint64 event_codes[MAX_NUM_SAMPLES];
     int64 sample_numbers[MAX_NUM_SAMPLES];
-
-
-    int64 currentTimestamp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FalconInput);
 };

@@ -74,11 +74,6 @@ FalconInput::~FalconInput()
 void FalconInput::resizeChanSamp()
 {
     sourceBuffers[0]->resize(num_channels, MAX_NUM_SAMPLES);
-
-    //sampleNumbers.resize(num_samp);
-    //timestamps.clear();
-    //timestamps.insertMultiple(0, 0.0, num_samp);
-   // ttlEventWords.resize(num_samp);
 }
 
 int FalconInput::getNumChannels() const
@@ -123,7 +118,7 @@ void FalconInput::updateSettings(OwnedArray<ContinuousChannel>* continuousChanne
             "description",
             "identifier",
 
-            data_scale,
+            0.195,
 
             sourceStreams->getFirst()
         };
@@ -155,8 +150,6 @@ bool FalconInput::startAcquisition()
 
     total_samples = 0;
 
-    eventState = 0;
-
     startThread();
 
     return true;
@@ -180,9 +173,6 @@ void FalconInput::closeConnection()
 
 void  FalconInput::tryToConnect()
 {
-    // Parameters
-    std::string address = "127.0.0.1";
-    int port = 3335;
 
     closeConnection();
 
