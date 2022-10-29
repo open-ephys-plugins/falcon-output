@@ -52,6 +52,8 @@ FalconInput::FalconInput(SourceNode* sn) : DataThread(sn),
     sourceBuffers.add(new DataBuffer(num_channels, MAX_NUM_SAMPLES)); // start with 16 channels and automatically resize
 
     tryToConnect();
+
+    zmq_msg_init(&message);
 }
 
 std::unique_ptr<GenericEditor> FalconInput::createEditor(SourceNode* sn)
@@ -209,9 +211,7 @@ bool FalconInput::stopAcquisition()
 
 bool FalconInput::updateBuffer()
 {
-    
-    zmq_msg_t message;
-    zmq_msg_init(&message);
+   
     const openephysflatbuffer::ContinuousData* data;
 
     if (zmq_msg_recv(&message, socket, ZMQ_DONTWAIT) != -1)  // Non-blocking to wait to receive a message

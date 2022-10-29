@@ -92,9 +92,8 @@ private:
     void* socket;
     void* context;
 
-    uint16_t *recvbuf;
-    float *convbuf;
-
+    zmq_msg_t message;
+    
     Array<int64> sampleNumbers;
     Array<double> timestamps;
     Array<uint64> ttlEventWords;
