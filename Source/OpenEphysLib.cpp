@@ -24,7 +24,10 @@
 
 
 #include <PluginInfo.h>
+
 #include "FalconOutput.h"
+#include "FalconInput.h"
+
 #include <string>
 
 #ifdef _WIN32
@@ -36,7 +39,7 @@
 
 using namespace Plugin;
 //Number of plugins defined on the library. Can be of different types (Processors, RecordEngines, etc...)
-#define NUM_PLUGINS 1
+#define NUM_PLUGINS 2
 
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
@@ -46,7 +49,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
         info->apiVersion = PLUGIN_API_VER;
 
         //Name of the Library, used only for information
-        info->name = "Falcon Output";
+        info->name = "Falcon I/O";
 
         //Version of the library, used only for information
         info->libVersion = "0.2.0";
@@ -57,14 +60,20 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 {
     switch (index)
     {
-            //one case per plugin. This example is for a processor which connects directly to the signal chain
+        //one case per plugin. This example is for a processor which connects directly to the signal chain
         case 0:
-            info->type = Plugin::PROCESSOR; //Type of plugin. See "Source/Processors/PluginManager/OpenEphysPlugin.h" for complete info about the different type structures
-            //For processor
+            info->type = Plugin::Type::PROCESSOR;
             info->processor.name = "Falcon Output"; //Processor name shown in the GUI
             info->processor.type = Plugin::Processor::SINK; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
             info->processor.creator = &(Plugin::createProcessor<FalconOutput>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
             break;
+
+        case 1:
+            info->type = Plugin::Type::DATA_THREAD;
+            info->dataThread.name = "Falcon Input"; //Processor name shown in the GUI
+            info->dataThread.creator = &(Plugin::createDataThread<FalconInput>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
+            break;
+
         default:
             return -1;
             break;
