@@ -32,6 +32,7 @@ table ContinuousData {
     n_channels: uint32;
     n_samples: uint32;
     sample_num: uint64; 
+    timestamp: double;
     message_id: uint64;
     sample_rate: uint32;
 }

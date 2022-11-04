@@ -69,7 +69,7 @@ private:
 
     void sendData(const float **bufferChanPtrs,
                   int nChannels, int nSamples,
-                  int64 sampleNumber, int sampleRate);
+                  int64 sampleNumber, double timestamp, int sampleRate);
 
     void *context;
     void *socket;

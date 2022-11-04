@@ -215,20 +215,28 @@ bool FalconInput::updateBuffer()
             return true;
         }
 
-        /*std::cout << "Received packet number: " << data->message_id()
-            << ", Stream: " << data->stream()->c_str()
-            << ", Sample_Number: " << data->sample_num()
-            << ", Samples: " << data->n_samples()
-            << ", Channels: " << data->n_channels() << std::endl;*/
+       // std::cout << "Received packet number: " << data->message_id()
+       //     << ", Stream: " << data->stream()->c_str()
+       //      << ", Sample_Number: " << data->sample_num()
+       //     << ", Samples: " << data->n_samples()
+        //    << ", Channels: " << data->n_channels() << std::endl;
+
+        double sent_timestamp = data->timestamp();
+        double received_timestamp = double(Time::getHighResolutionTicks()) / double(Time::getHighResolutionTicksPerSecond());
+
+        std::cout << "Packet delay " << data->message_id() << ": " << received_timestamp - sent_timestamp << std::endl;
 
         const int num_samples = data->n_samples();
+
+        const flatbuffers::Vector<float>* d = data->samples(); // +ch;
+        int offset = 0;
         
         for (int ch = 0; ch < num_channels; ch++)
         {
 
-            const flatbuffers::Vector<float>* d = data->samples() + ch;
+            //const flatbuffers::Vector<float>* d = data->samples() + ch;
             
-            int offset = 0;
+            //int offset = 0;
 
             int zero_values = 0;
 
@@ -254,6 +262,8 @@ bool FalconInput::updateBuffer()
                     zero_values++;
 
             }
+            
+           // std::cout << "Ch: " << ch << ", zeros: " << zero_values << std::endl;
 
         }
 

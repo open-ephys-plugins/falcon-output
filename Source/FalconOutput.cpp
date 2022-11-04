@@ -91,16 +91,27 @@ void FalconOutput::closeSocket()
 
 void FalconOutput::sendData(const float **bufferChanPtrs,
                             int nChannels, int nSamples,
-                            int64 sampleNumber, int sampleRate)
+                            int64 sampleNumber, double timestamp, int sampleRate)
 {
     
     messageNumber++;
 
     // Create message
+    std::vector<float> flatsamples;
+    flatsamples.reserve(nChannels * nSamples);
+
+    for (int ch = 0; ch < nChannels; ch++)
+    {
+        for (int i = 0; i < nSamples; i++)
+            flatsamples.push_back(*(*(bufferChanPtrs + ch) + i));
+    }
+
+    auto samples = flatBuilder.CreateVector(flatsamples);
+    //auto samples = flatBuilder.CreateVector(*(bufferChanPtrs), nChannels* nSamples);
+
     auto streamName = flatBuilder.CreateString(getDataStream(selectedStream)->getName().toStdString());
-    auto samples = flatBuilder.CreateVector(*(bufferChanPtrs), nChannels*nSamples);
     auto zmqBuffer = openephysflatbuffer::CreateContinuousData(flatBuilder, samples, streamName,
-                                                               nChannels, nSamples, sampleNumber,
+                                                               nChannels, nSamples, sampleNumber, timestamp,
                                                                messageNumber, sampleRate);
     flatBuilder.Finish(zmqBuffer);
 
@@ -113,6 +124,8 @@ void FalconOutput::sendData(const float **bufferChanPtrs,
     memcpy(zmq_msg_data(&request), (void *)buf, size);
     int size_m = zmq_msg_send(&request, socket, 0);
     zmq_msg_close(&request);
+
+    //std::cout << "Sending packet " << messageNumber << " at " << Time::getHighResolutionTicks() << std::endl;
 
     flatBuilder.Clear();
 }
@@ -141,6 +154,7 @@ void FalconOutput::process(AudioBuffer<float>& buffer)
         {
             // Send the sample number of the first sample in the buffer block
             int64 sampleNum = getFirstSampleNumberForBlock(selectedStream) ;
+            double timestamp = double(Time::getHighResolutionTicks()) / double(Time::getHighResolutionTicksPerSecond());
             int numSamples = getNumSamplesInBlock(selectedStream);
             int numChannels = selectedChannels.size();
 
@@ -157,7 +171,7 @@ void FalconOutput::process(AudioBuffer<float>& buffer)
                 i++;
             }
 
-            sendData(bufferPtrs, numChannels, numSamples, sampleNum, (int)stream->getSampleRate());
+            sendData(bufferPtrs, numChannels, numSamples, sampleNum, timestamp, (int)stream->getSampleRate());
         }
     }
 }
