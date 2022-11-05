@@ -34,60 +34,61 @@ FalconInputEditor::FalconInputEditor(GenericProcessor* parentNode, FalconInput *
 
     desiredWidth = 240;
 
-    // Add connect button
-    connectButton = new UtilityButton("CONNECT", Font("Small Text", 12, Font::bold));
-    connectButton->setRadius(3.0f);
-    connectButton->setBounds(10, 35, 70, 20);
-    connectButton->addListener(this);
-    addAndMakeVisible(connectButton);
+    // Address
+    addressLabel = new Label("IP Address", "IP Address");
+    addressLabel->setFont(Font("Small Text", 12, Font::plain));
+    addressLabel->setBounds(10, 35, 65, 12);
+    addressLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(addressLabel);
+
+    addressInput = new Label("IP Address", node->address);
+    addressInput->setFont(Font("Small Text", 12, Font::plain));
+    addressInput->setColour(Label::backgroundColourId, Colours::lightgrey);
+    addressInput->setEditable(true);
+    addressInput->addListener(this);
+    addressInput->setBounds(15, 50, 85, 20);
+    addAndMakeVisible(addressInput);
 
     // Port
     portLabel = new Label("Port", "Port");
-    portLabel->setFont(Font("Small Text", 10, Font::plain));
-    portLabel->setBounds(5, 60, 65, 8);
+    portLabel->setFont(Font("Small Text", 12, Font::plain));
+    portLabel->setBounds(10, 80, 65, 12);
     portLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(portLabel);
 
     portInput = new Label("Port", String(node->port));
-    portInput->setFont(Font("Small Text", 10, Font::plain));
+    portInput->setFont(Font("Small Text", 12, Font::plain));
     portInput->setColour(Label::backgroundColourId, Colours::lightgrey);
     portInput->setEditable(true);
     portInput->addListener(this);
-    portInput->setBounds(10, 70, 65, 15);
+    portInput->setBounds(15, 95, 65, 20);
     addAndMakeVisible(portInput);
 
-    //---
-    bufferSizeMainLabel = new Label("BUFFER SIZE", "BUFFER SIZE");
-    bufferSizeMainLabel->setFont(Font("Small Text", 12, Font::plain));
-    bufferSizeMainLabel->setBounds(114, 30, 95, 15);
-    bufferSizeMainLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(bufferSizeMainLabel);
-
     // Num chans
-    channelCountLabel = new Label("CHANNELS", "CHANNELS");
-    channelCountLabel->setFont(Font("Small Text", 10, Font::plain));
-    channelCountLabel->setBounds(92, 48, 65, 8);
+    channelCountLabel = new Label("CHANNELS", "Channels");
+    channelCountLabel->setFont(Font("Small Text", 12, Font::plain));
+    channelCountLabel->setBounds(115, 35, 65, 12);
     channelCountLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(channelCountLabel);
 
     channelCountInput = new Label("Channel count", String(node->num_channels));
-    channelCountInput->setFont(Font("Small Text", 10, Font::plain));
-    channelCountInput->setBounds(100, 60, 50, 15);
+    channelCountInput->setFont(Font("Small Text", 12, Font::plain));
+    channelCountInput->setBounds(120, 50, 50, 20);
     channelCountInput->setColour(Label::backgroundColourId, Colours::lightgrey);
     channelCountInput->setEditable(true);
     channelCountInput->addListener(this);
     addAndMakeVisible(channelCountInput);
 
     // Fs
-    sampleRateLabel = new Label("FREQ (HZ)", "FREQ (HZ)");
-    sampleRateLabel->setFont(Font("Small Text", 10, Font::plain));
-    sampleRateLabel->setBounds(5, 92, 85, 8);
+    sampleRateLabel = new Label("FREQ (HZ)", "Sample Rate (Hz)");
+    sampleRateLabel->setFont(Font("Small Text", 12, Font::plain));
+    sampleRateLabel->setBounds(115, 80, 105, 8);
     sampleRateLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(sampleRateLabel);
 
     sampleRateInput = new Label("Fs (Hz)", String((int) node->sample_rate));
-    sampleRateInput->setFont(Font("Small Text", 10, Font::plain));
-    sampleRateInput->setBounds(10, 105, 65, 15);
+    sampleRateInput->setFont(Font("Small Text", 12, Font::plain));
+    sampleRateInput->setBounds(120, 95, 65, 20);
     sampleRateInput->setEditable(true);
     sampleRateInput->setColour(Label::backgroundColourId, Colours::lightgrey);
     sampleRateInput->addListener(this);
@@ -136,43 +137,41 @@ void FalconInputEditor::labelTextChanged(Label* label)
         if (port > 1023 && port < 65535)
         {
             node->port = port;
+            node->tryToConnect();
         }
         else {
             portInput->setText(String(node->port), dontSendNotification);
         }
     }
-
+    else if (label == addressInput)
+    {
+        node->address = addressInput->getText();
+        node->tryToConnect();
+    }
 
 }
 
 void FalconInputEditor::startAcquisition()
 {
     // Disable the whole gui
+    addressInput->setEnabled(false);
     portInput->setEnabled(false);
     channelCountInput->setEnabled(false);
     sampleRateInput->setEnabled(false);
-    connectButton->setEnabled(false);
 
-    node->resizeChanSamp();
 }
 
 void FalconInputEditor::stopAcquisition()
 {
     // Reenable the whole gui
+    addressInput->setEnabled(true);
     portInput->setEnabled(true);
     channelCountInput->setEnabled(true);
     sampleRateInput->setEnabled(true);
-    connectButton->setEnabled(true);
 }
 
 void FalconInputEditor::buttonClicked(Button* button)
 {
-
-    if (button == connectButton)
-    {
-        node->port = portInput->getText().getIntValue();
-        node->tryToConnect();
-    }
   
 }
 
@@ -180,6 +179,7 @@ void FalconInputEditor::saveCustomParametersToXml(XmlElement* xmlNode)
 {
     XmlElement* parameters = xmlNode->createNewChildElement("PARAMETERS");
 
+    parameters->setAttribute("address", addressInput->getText());
     parameters->setAttribute("port", portInput->getText());
     parameters->setAttribute("numchan", channelCountInput->getText());
     parameters->setAttribute("fs", sampleRateInput->getText());
@@ -191,13 +191,17 @@ void FalconInputEditor::loadCustomParametersFromXml(XmlElement* xmlNode)
     {
         if (subNode->hasTagName("PARAMETERS"))
         {
-            portInput->setText(subNode->getStringAttribute("port", ""), dontSendNotification);
+
+            addressInput->setText(subNode->getStringAttribute("address", DEFAULT_ADDRESS), dontSendNotification);
+            node->address = subNode->getStringAttribute("address", DEFAULT_ADDRESS);
+
+            portInput->setText(subNode->getStringAttribute("port", String(DEFAULT_PORT)), dontSendNotification);
             node->port = subNode->getIntAttribute("port", DEFAULT_PORT);
 
-            channelCountInput->setText(subNode->getStringAttribute("numchan", ""), dontSendNotification);
+            channelCountInput->setText(subNode->getStringAttribute("numchan", String(DEFAULT_NUM_CHANNELS)), dontSendNotification);
             node->num_channels = subNode->getIntAttribute("numchan", DEFAULT_NUM_CHANNELS);
 
-            sampleRateInput->setText(subNode->getStringAttribute("fs", ""), dontSendNotification);
+            sampleRateInput->setText(subNode->getStringAttribute("fs", String(DEFAULT_SAMPLE_RATE)), dontSendNotification);
             node->sample_rate = subNode->getDoubleAttribute("fs", DEFAULT_SAMPLE_RATE);
 
         }

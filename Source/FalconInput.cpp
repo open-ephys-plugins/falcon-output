@@ -71,15 +71,6 @@ FalconInput::~FalconInput()
     closeConnection();
 }
 
-void FalconInput::resizeChanSamp()
-{
-    sourceBuffers[0]->resize(num_channels, MAX_NUM_SAMPLES);
-}
-
-int FalconInput::getNumChannels() const
-{
-    return num_channels;
-}
 
 void FalconInput::updateSettings(OwnedArray<ContinuousChannel>* continuousChannels,
     OwnedArray<EventChannel>* eventChannels,
@@ -96,11 +87,13 @@ void FalconInput::updateSettings(OwnedArray<ContinuousChannel>* continuousChanne
     configurationObjects->clear();
     sourceStreams->clear();
 
+    sourceBuffers[0]->resize(num_channels, MAX_NUM_SAMPLES);
+
     DataStream::Settings settings
     {
         "FalconInputStream",
-        "description",
-        "identifier",
+        "Data streamed from a Falcon Output plugin",
+        "falconinput.source",
 
         sample_rate
 
@@ -115,8 +108,8 @@ void FalconInput::updateSettings(OwnedArray<ContinuousChannel>* continuousChanne
         ContinuousChannel::Settings settings{
             ContinuousChannel::Type::ELECTRODE,
             "CH" + String(ch + 1),
-            "description",
-            "identifier",
+            "Continuous data streamed from a Falcon Output plugin",
+            "falconinput.source.channel",
 
             0.195,
 
@@ -129,8 +122,8 @@ void FalconInput::updateSettings(OwnedArray<ContinuousChannel>* continuousChanne
     EventChannel::Settings eventSettings{
            EventChannel::Type::TTL,
            "Events",
-           "description",
-           "identifier",
+           "Event data streamed from a Falcon Output plugin",
+           "falconinput.source.events",
            sourceStreams->getFirst(),
            1
     };
@@ -146,8 +139,6 @@ bool FalconInput::foundInputSource()
 
 bool FalconInput::startAcquisition()
 {
-    resizeChanSamp();
-
     total_samples = 0;
 
     startThread();
@@ -181,7 +172,9 @@ void  FalconInput::tryToConnect()
     auto tcp_address = "tcp://" + address + ":" + std::to_string(port);
     socket = zmq_socket(context, ZMQ_SUB);
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, nullptr, 0);
-    zmq_connect(socket, tcp_address.c_str());
+    zmq_connect(socket, tcp_address.toStdString().c_str());
+
+    std::cout << "Connected to " << tcp_address << std::endl;
 
     connected = true;
 }
@@ -234,10 +227,6 @@ bool FalconInput::updateBuffer()
         for (int ch = 0; ch < num_channels; ch++)
         {
 
-            //const flatbuffers::Vector<float>* d = data->samples() + ch;
-            
-            //int offset = 0;
-
             int zero_values = 0;
 
             for (int i = 0; i < num_samples; i++)
@@ -245,6 +234,9 @@ bool FalconInput::updateBuffer()
                 if (offset < d->size())
                 {
                     samples[num_channels * i + ch] = d->Get(offset);
+                }
+                else {
+                    samples[num_channels * i + ch] = 0;
                 }
                 
                 offset++;
@@ -258,8 +250,8 @@ bool FalconInput::updateBuffer()
                     
                 }
 
-                if (samples[num_channels * i + ch] == 0)
-                    zero_values++;
+                //if (samples[num_channels * i + ch] == 0)
+               //     zero_values++;
 
             }
             

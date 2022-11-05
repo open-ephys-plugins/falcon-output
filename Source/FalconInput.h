@@ -32,11 +32,17 @@
 #include <string>
 
 const int DEFAULT_PORT = 3335;
+const String DEFAULT_ADDRESS = "127.0.0.1";
 const float DEFAULT_SAMPLE_RATE = 40000.0f;
 const int DEFAULT_NUM_CHANNELS = 16;
 const int MAX_NUM_SAMPLES = 10000;
 #define MAX_NUM_CHANNELS 384
 
+/** 
+* 
+    Streams continuous data from a Falcon Output module
+
+*/
 class FalconInput : public DataThread
 {
 
@@ -48,9 +54,10 @@ public:
     /** Destructor */
     ~FalconInput();
 
-    // Interface fulfillment
+    /** Returns true if socket is connected */
     bool foundInputSource() override;
 
+    /** Creates the channel info objects */
     void updateSettings(OwnedArray<ContinuousChannel>* continuousChannels,
         OwnedArray<EventChannel>* eventChannels,
         OwnedArray<SpikeChannel>* spikeChannels,
@@ -58,20 +65,12 @@ public:
         OwnedArray<DeviceInfo>* devices,
         OwnedArray<ConfigurationObject>* configurationObjects);
 
-    int getNumChannels() const;
+    int port = DEFAULT_PORT;
+    String address = DEFAULT_ADDRESS;
+    float sample_rate = DEFAULT_SAMPLE_RATE;
+    int num_channels = DEFAULT_NUM_CHANNELS;
 
-    // User defined
-    int port = 3335;
-    std::string address = "127.0.0.1";
-    float sample_rate;
-    int num_channels;
 
-    int64 total_samples;
-    float relative_sample_rate;
-
-    uint64 eventState;
-
-    void resizeChanSamp();
     void tryToConnect();
     void closeConnection();
 
@@ -80,9 +79,16 @@ public:
 
 private:
 
+    /** Moves data from ZMQ message to Open Ephys data buffer*/
     bool updateBuffer() override;
+
+    /** Starts data thread */
     bool startAcquisition() override;
+
+    /** Stops data thread*/
     bool stopAcquisition()  override;
+
+    int64 total_samples;
 
     bool connected = false;
 

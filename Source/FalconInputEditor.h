@@ -63,15 +63,13 @@ public:
 
 private:
 
-    // Button that tried to connect to client
-    ScopedPointer<UtilityButton> connectButton;
+    // Address
+    ScopedPointer<Label> addressLabel;
+    ScopedPointer<Label> addressInput;
 
     // Port
     ScopedPointer<Label> portLabel;
     ScopedPointer<Label> portInput;
-
-    // Buffer size
-    ScopedPointer<Label> bufferSizeMainLabel;
 
     // Chans
     ScopedPointer<Label> channelCountLabel;
