@@ -172,11 +172,19 @@ void  FalconInput::tryToConnect()
     auto tcp_address = "tcp://" + address + ":" + std::to_string(port);
     socket = zmq_socket(context, ZMQ_SUB);
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, nullptr, 0);
-    zmq_connect(socket, tcp_address.toStdString().c_str());
+    int rc = zmq_connect(socket, tcp_address.toStdString().c_str());
 
-    std::cout << "Connected to " << tcp_address << std::endl;
-
-    connected = true;
+    if (rc == 0)
+    {
+        LOGC("Falcon Input connected to ", tcp_address);
+        connected = true;
+    }
+    else
+    {
+        LOGC(zmq_strerror(zmq_errno()));
+        connected = false;
+    }
+    
 }
 
 bool FalconInput::stopAcquisition()
