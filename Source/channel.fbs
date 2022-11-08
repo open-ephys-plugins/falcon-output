@@ -28,6 +28,7 @@ namespace openephysflatbuffer;
 
 table ContinuousData {
     samples: [float];
+    event_codes: [uint16];
     stream: string;
     n_channels: uint32;
     n_samples: uint32;

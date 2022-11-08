@@ -107,10 +107,10 @@ void FalconOutput::sendData(const float **bufferChanPtrs,
     }
 
     auto samples = flatBuilder.CreateVector(flatsamples);
-    //auto samples = flatBuilder.CreateVector(*(bufferChanPtrs), nChannels* nSamples);
+    auto event_codes = flatBuilder.CreateVector(eventCodes);
 
     auto streamName = flatBuilder.CreateString(getDataStream(selectedStream)->getName().toStdString());
-    auto zmqBuffer = openephysflatbuffer::CreateContinuousData(flatBuilder, samples, streamName,
+    auto zmqBuffer = openephysflatbuffer::CreateContinuousData(flatBuilder, samples, event_codes, streamName,
                                                                nChannels, nSamples, sampleNumber, timestamp,
                                                                messageNumber, sampleRate);
     flatBuilder.Finish(zmqBuffer);
@@ -142,10 +142,50 @@ void FalconOutput::updateSettings()
     ed->updateStreamSelectorOptions();
 }
 
+void FalconOutput::handleTTLEvent(TTLEventPtr event)
+{
+    if (event->getStreamId() == selectedStream)
+    {
+        int eventLine = event->getLine();
+
+        if (eventLine > 15)
+            return;
+
+        int64 sampleOffset = event->getSampleNumber() - getFirstSampleNumberForBlock(selectedStream);
+        bool eventState = event->getState();
+
+        for (int i = lastEventIndex; i < sampleOffset - 1; i++)
+        {
+            eventCodes[i] = lastEventCode;
+        }
+
+        if (eventState)
+        {
+            lastEventCode |= uint16(1) << eventLine;
+        }
+        else {
+            lastEventCode &= ~(uint16(1) << eventLine);
+        }
+
+        //std::cout << "Received event on line " << eventLine << "; new code = " << lastEventCode << ", sample offset = " << sampleOffset << std::endl;
+
+        lastEventIndex = sampleOffset;
+        eventCodes[lastEventIndex] = lastEventCode;
+
+    }
+}
+
 void FalconOutput::process(AudioBuffer<float>& buffer)
 {
     if (!socket)
         createSocket();
+
+    eventCodes.resize(getNumSamplesInBlock(selectedStream));
+    lastEventIndex = 0;
+    checkForEvents();
+
+    for (int i = lastEventIndex; i < getNumSamplesInBlock(selectedStream); i++)
+        eventCodes[i] = lastEventCode;
 
     for (auto stream : dataStreams)
     {        
@@ -174,6 +214,13 @@ void FalconOutput::process(AudioBuffer<float>& buffer)
             sendData(bufferPtrs, numChannels, numSamples, sampleNum, timestamp, (int)stream->getSampleRate());
         }
     }
+}
+
+bool FalconOutput::startAcquisition()
+{
+    lastEventCode = 0;
+
+    return true;
 }
 
 void FalconOutput::parameterValueChanged(Parameter* param)

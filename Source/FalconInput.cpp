@@ -125,7 +125,7 @@ void FalconInput::updateSettings(OwnedArray<ContinuousChannel>* continuousChanne
            "Event data streamed from a Falcon Output plugin",
            "falconinput.source.events",
            sourceStreams->getFirst(),
-           1
+           16
     };
 
     eventChannels->add(new EventChannel(eventSettings));
@@ -225,11 +225,12 @@ bool FalconInput::updateBuffer()
         double sent_timestamp = data->timestamp();
         double received_timestamp = double(Time::getHighResolutionTicks()) / double(Time::getHighResolutionTicksPerSecond());
 
-        std::cout << "Packet delay " << data->message_id() << ": " << received_timestamp - sent_timestamp << std::endl;
+        //std::cout << "Packet delay " << data->message_id() << ": " << received_timestamp - sent_timestamp << std::endl;
 
         const int num_samples = data->n_samples();
 
-        const flatbuffers::Vector<float>* d = data->samples(); // +ch;
+        const flatbuffers::Vector<float>* d = data->samples();
+        const flatbuffers::Vector<uint16>* e = data->event_codes(); 
         int offset = 0;
         
         for (int ch = 0; ch < num_channels; ch++)
@@ -249,21 +250,15 @@ bool FalconInput::updateBuffer()
                 
                 offset++;
 
-                if (ch == 1)
+                if (ch == 0)
                 {
-
+                    event_codes[i] = uint64(e->Get(i));
                     sample_numbers[i] = total_samples + i;
                     timestamp_s[i] = -1;
-                    event_codes[i] = 0;
-                    
+  
                 }
 
-                //if (samples[num_channels * i + ch] == 0)
-               //     zero_values++;
-
             }
-            
-           // std::cout << "Ch: " << ch << ", zeros: " << zero_values << std::endl;
 
         }
 

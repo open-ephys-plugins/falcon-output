@@ -43,17 +43,27 @@
 class FalconOutput: public GenericProcessor
 {
 public:
+
+    /** Constructor */
     FalconOutput();
+
+    /** Destructor*/
     ~FalconOutput();
 
     /** Streams incoming data over a ZMQ socket */
     void process(AudioBuffer<float>& continuousBuffer) override;
+
+    /** Updates event codes in response to incoming events */
+    void handleTTLEvent(TTLEventPtr event) override;
 
     /** Called whenever the settings of upstream plugins have changed */
     void updateSettings() override;
 
     /** Called when a parameter is updated*/
     void parameterValueChanged(Parameter* param) override;
+
+    /** Called at start of acquisition*/
+    bool startAcquisition() override;
 
     AudioProcessorEditor* createEditor();
 
@@ -82,6 +92,9 @@ private:
     flatbuffers::FlatBufferBuilder flatBuilder;
 
     Array<int> selectedChannels;
+    std::vector<uint16> eventCodes;
+    uint16 lastEventCode;
+    int64 lastEventIndex;
 
     const float* bufferPtrs[MAX_NUM_CHANNELS];
 
