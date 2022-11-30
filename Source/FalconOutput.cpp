@@ -138,6 +138,10 @@ AudioProcessorEditor* FalconOutput::createEditor()
 
 void FalconOutput::updateSettings()
 {
+
+    int dataPort = getParameter("data_port")->getValue();
+    setPort(dataPort);
+
     FalconOutputEditor * ed = (FalconOutputEditor*) getEditor();
     ed->updateStreamSelectorOptions();
 }
@@ -244,6 +248,7 @@ void FalconOutput::setSelectedStream(int idx)
 
 void FalconOutput::setPort(uint32_t new_port)
 {
+    LOGC("Falcon Output setting port to ", new_port);
     port = new_port;
     closeSocket();
     createSocket();
