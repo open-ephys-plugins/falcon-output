@@ -1,16 +1,19 @@
 # Falcon Output
 
+![Falcon Output Editor](https://open-ephys.github.io/gui-docs/_images/falconoutput-01.png)
+
 This is an Open Ephys GUI plugin that streams incoming continuous data with very low latency. It is optimized for use with [Falcon](https://falcon-core.readthedocs.io/en/latest/), Linux-based real-time analysis software maintained by the [Kloosterman Lab](https://www.nerf.be/research/nerf-labs/fabian-kloosterman) at NERF. However, because it uses a general-purpose data packaging format (based on [ZeroMQ](https://zeromq.org/) and [Flatbuffers](https://google.github.io/flatbuffers/)), it can be used to create advanced visualization and monitoring add-ons in almost any programming language.
 
 ## Installation
+
+This plugin can be added via the Open Ephys GUI's built-in Plugin Installer. Press **ctrl-P** or **⌘P** to open the Plugin Installer, browse to the "Falcon I/O", and click the "Install" button. The Falcon Output should now be available to use.
+
+## Building from source
+
 ### Dependencies (automatically installed at build time)
 
 - ZMQ lib - shared lib for windows, linux, and mac already included for the plugin
 - Flatbuffer lib - build at built time (via cmake FetchContent)
-
-## Main usage 
-
-Communication setup with the OpenEphysZMQ Falcon processor. 
 
 ## How to create your own client
 
