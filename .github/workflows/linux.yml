@@ -41,7 +41,7 @@ jobs:
         mkdir plugins 
         cp -r $build_dir/*.so plugins
         mkdir shared	
-        cp -r libs/linux/bin/* shared
+        cp -r libs/linux/bin/libzmq.so.5 shared
         zipfile=${package}_${new_plugin_ver}.zip
         zip -r -X $zipfile plugins shared
         curl -H "X-JFrog-Art-Api:$artifactoryApiKey" -T $zipfile "https://openephys.jfrog.io/artifactory/FalconOutput-plugin/linux/$zipfile"
