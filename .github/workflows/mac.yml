@@ -21,7 +21,6 @@ jobs:
         cd plugin-GUI/Build && cmake -G "Xcode" ..
     - name: build
       run: |
-        chmod +x libs/macos/bin/flatc
         cd Build
         cmake -G "Xcode" ..
         xcodebuild -configuration Release
