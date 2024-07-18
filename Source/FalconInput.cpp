@@ -23,11 +23,6 @@
  */
 
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
-
 #include "channel_generated.h"
 #include "flatbuffers/flatbuffers.h"
 

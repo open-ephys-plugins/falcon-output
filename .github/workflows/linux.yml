@@ -23,6 +23,7 @@ jobs:
         cd plugin-GUI/Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
     - name: build
       run: |
+        chmod +x libs/linux/bin/flatc
         cd Build
         cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
         make

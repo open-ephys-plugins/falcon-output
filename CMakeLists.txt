@@ -101,42 +101,28 @@ endforeach()
 
 #copy the dlls when installing
 if (MSVC)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${GUI_BIN_DIR}/shared CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${GUI_BIN_DIR}/shared CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
+			FILES_MATCHING PATTERN "*.dll")
+	set(FLATC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE})
 elseif(LINUX)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux/bin/ DESTINATION ${GUI_BIN_DIR}/shared)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux/bin/ DESTINATION ${GUI_BIN_DIR}/shared
+			FILES_MATCHING PATTERN "*.so.*")
+	set(FLATC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux/bin)
 elseif(APPLE)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos/bin/ DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/shared-api8)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos/bin/ DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/shared-api8
+			FILES_MATCHING PATTERN "*.dylib")
+	set(FLATC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos/bin)
 endif()
 
 #additional libraries, if needed
 find_library(ZMQ_LIBRARIES NAMES libzmq-v142-mt-4_3_4 zmq zmq-v142-mt-4_3_4)
 find_path(ZMQ_INCLUDE_DIRS zmq.h)
 
-include(FetchContent)
-FetchContent_Declare(
-    flatbuffers
-    GIT_REPOSITORY "https://github.com/google/flatbuffers"
-    GIT_TAG        v24.3.25
-)
-set(FLATBUFFERS_BUILD_FLATC ON CACHE INTERNAL "Enable the build of the flatbuffers compiler")
-set(FLATBUFFERS_BUILD_TESTS OFF CACHE INTERNAL "Enable tests from flatbuffers lib.")
-set(FLATBUFFERS_BUILD_FLATHASH OFF CACHE INTERNAL "Enable the build of flathash")
-set(FLATBUFFERS_BUILD_CPP17 ON CACHE INTERNAL "Enable the build of c++17 test target")
-set(FLATBUFFERS_INSTALL OFF CACHE INTERNAL "Enable the installation of targets.")
-set(FLATBUFFERS_ENABLE_PCH OFF CACHE INTERNAL
-       "Enable precompile headers support for 'flatbuffers' and 'flatc'. \"
-        Only work if CMake support 'target_precompile_headers'. \"
-        Only work if CMake supports 'target_precompile_headers'. \"
-        This can speed up compilation time."
-       )
-
-FetchContent_MakeAvailable(flatbuffers)
-
-include_directories(BEFORE SYSTEM "${flatbuffers_SOURCE_DIR}/include")
+target_include_directories(${PLUGIN_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/include)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/channel_generated.h
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Source/channel.fbs
-    COMMAND flatc --cpp ${CMAKE_CURRENT_SOURCE_DIR}/Source/channel.fbs
+    COMMAND ${FLATC_DIR}/flatc --cpp ${CMAKE_CURRENT_SOURCE_DIR}/Source/channel.fbs
 )
 
 add_custom_target(channelbuffer DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/channel_generated.h)
@@ -146,6 +132,3 @@ add_dependencies(${PLUGIN_NAME} channelbuffer)
 target_include_directories(${PLUGIN_NAME} PUBLIC ${ZMQ_INCLUDE_DIRS})
 target_link_libraries(${PLUGIN_NAME} ${ZMQ_LIBRARIES})
 target_compile_definitions(${PLUGIN_NAME} PRIVATE ZEROMQ $<$<PLATFORM_ID:Windows>:_SCL_SECURE_NO_WARNINGS>)
-
-
-target_include_directories( ${PLUGIN_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs)
