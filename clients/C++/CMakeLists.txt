@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 Project(Client)
 
+set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
+
 if (NOT CMAKE_LIBRARY_ARCHITECTURE)
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(CMAKE_LIBRARY_ARCHITECTURE "x64")
@@ -38,6 +40,7 @@ elseif(APPLE)
 endif()
 
 add_executable(Client client.cpp)
+target_compile_features(Client PRIVATE cxx_std_17)
 
 target_include_directories(Client PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/include)
 
