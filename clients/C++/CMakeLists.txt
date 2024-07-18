@@ -24,7 +24,7 @@ include(FetchContent)
 FetchContent_Declare(
     flatbuffers
     GIT_REPOSITORY "https://github.com/google/flatbuffers"
-    GIT_TAG        v2.0.0
+    GIT_TAG        v24.3.25
 )
 set(FLATBUFFERS_BUILD_FLATC ON CACHE INTERNAL "Enable the build of the flatbuffers compiler")
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE INTERNAL "Enable tests from flatbuffers lib.")
