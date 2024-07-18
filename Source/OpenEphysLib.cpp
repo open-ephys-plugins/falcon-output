@@ -52,7 +52,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
         info->name = "Falcon I/O";
 
         //Version of the library, used only for information
-        info->libVersion = "0.2.0";
+        info->libVersion = "0.2.1";
         info->numPlugins = NUM_PLUGINS;
 }
 

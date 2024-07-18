@@ -43,8 +43,8 @@ FetchContent_MakeAvailable(flatbuffers)
 include_directories(BEFORE SYSTEM "${flatbuffers_SOURCE_DIR}/include")
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/channel_generated.h
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/channel.fbs
-    COMMAND flatc --cpp ${CMAKE_CURRENT_SOURCE_DIR}/channel.fbs
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../../Source/channel.fbs
+    COMMAND flatc --cpp ${CMAKE_CURRENT_SOURCE_DIR}/../../Source/channel.fbs
 )
 
 add_custom_target(channelbuffer DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/channel_generated.h)
@@ -55,13 +55,13 @@ add_executable(Client client.cpp)
 #copy the ZMQ dlls when installing
 if (MSVC)
     set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/windows)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/Release)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/Release)
 elseif(LINUX)
     set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/Release)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/Release)
 elseif(APPLE)
     set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/Release)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/Release)
 endif()
 
 #additional libraries, if needed
