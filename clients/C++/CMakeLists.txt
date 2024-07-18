@@ -22,25 +22,31 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 
 set(CONFIGURATION_FOLDER $<$<CONFIG:Debug>:Debug>$<$<NOT:$<CONFIG:Debug>>:Release>)
 
+add_executable(Client client.cpp)
+target_compile_features(Client PRIVATE cxx_std_17)
+
 if (MSVC)
     set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/windows)
     set(FLATC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE})
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/${CONFIGURATION_FOLDER}
             FILES_MATCHING PATTERN "*.dll")
 elseif(LINUX)
+    set_property(TARGET ${PLUGIN_NAME} APPEND_STRING PROPERTY LINK_FLAGS "-Wl,-rpath='$ORIGIN'")
     set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux)
     set(FLATC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux/bin)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/${CONFIGURATION_FOLDER}
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/linux/bin/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
             FILES_MATCHING PATTERN "*.so.*")
 elseif(APPLE)
     set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos)
     set(FLATC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos/bin)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/${CONFIGURATION_FOLDER}
+
+    add_custom_command(TARGET Client POST_BUILD COMMAND
+                       install_name_tool -change "/usr/local/lib/libzmq.5.dylib" "libzmq.5.dylib"
+                       $<TARGET_FILE:Client>)
+
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/macos/bin/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/${CONFIGURATION_FOLDER}
             FILES_MATCHING PATTERN "*.dylib")
 endif()
-
-add_executable(Client client.cpp)
-target_compile_features(Client PRIVATE cxx_std_17)
 
 target_include_directories(Client PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/include)
 
