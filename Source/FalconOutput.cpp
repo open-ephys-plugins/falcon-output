@@ -63,7 +63,7 @@ void FalconOutput::createSocket()
 
         if (!socket)
         {
-            LOGD("Couldn't create a socket");
+            LOGC("Couldn't create a socket");
             LOGE(zmq_strerror(zmq_errno()));
             jassert(false);
         }
@@ -72,7 +72,7 @@ void FalconOutput::createSocket()
 
         if (zmq_bind(socket, urlstring.c_str()))
         {
-            LOGD("Couldn't open data socket");
+            LOGC("Couldn't open data socket");
             LOGE(zmq_strerror(zmq_errno()));
             jassert(false);
         }
@@ -244,13 +244,17 @@ void FalconOutput::parameterValueChanged(Parameter* param)
 void FalconOutput::setSelectedStream(int idx)
 {
     selectedStream = idx;
+    parameterValueChanged(getDataStream(selectedStream)->getParameter("Channels"));
 }
 
 void FalconOutput::setPort(uint32_t new_port)
 {
-    LOGC("Falcon Output setting port to ", new_port);
-    port = new_port;
-    closeSocket();
-    createSocket();
+    if (port != new_port)
+    {
+        LOGC("Falcon Output setting port to ", new_port);
+        port = new_port;
+        closeSocket();
+        createSocket();
+    }
 }
 
