@@ -244,7 +244,10 @@ void FalconOutput::parameterValueChanged(Parameter* param)
 void FalconOutput::setSelectedStream(int idx)
 {
     selectedStream = idx;
-    parameterValueChanged(getDataStream(selectedStream)->getParameter("Channels"));
+    
+    // Set the selected channels for the selected stream
+    if (selectedStream > 0)
+        parameterValueChanged(getDataStream(selectedStream)->getParameter("Channels"));
 }
 
 void FalconOutput::setPort(uint32_t new_port)

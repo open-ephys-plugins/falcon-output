@@ -125,7 +125,7 @@ void FalconOutputEditor::setOutputStream(int index)
 	if (index > 0)
 		falconProcessor->setSelectedStream(index);
 	else
-		falconProcessor->setSelectedStream(-1);
+		falconProcessor->setSelectedStream(0);
 }
 
 
