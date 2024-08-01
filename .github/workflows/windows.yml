@@ -2,6 +2,11 @@ name: Windows
 
 on: 
   push:
+    paths:
+    - '.github/workflows/**'
+    - 'libs/**'
+    - 'Source/**'
+    - 'CMakeLists.txt'
 
 jobs:
 
