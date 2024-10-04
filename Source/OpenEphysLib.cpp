@@ -22,41 +22,40 @@
  
  */
 
-
 #include <PluginInfo.h>
 
-#include "FalconOutput.h"
 #include "FalconInput.h"
+#include "FalconOutput.h"
 
 #include <string>
 
 #ifdef _WIN32
 #include <Windows.h>
-#define EXPORT __declspec(dllexport)
+#define EXPORT __declspec (dllexport)
 #else
-#define EXPORT __attribute__((visibility("default")))
+#define EXPORT __attribute__ ((visibility ("default")))
 #endif
 
 using namespace Plugin;
 //Number of plugins defined on the library. Can be of different types (Processors, RecordEngines, etc...)
 #define NUM_PLUGINS 2
 
-extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
+extern "C" EXPORT void getLibInfo (Plugin::LibraryInfo* info)
 {
-        /* API version, defined by the GUI source.
+    /* API version, defined by the GUI source.
         Should not be changed to ensure it is always equal to the one used in the latest codebase.
         The GUI refueses to load plugins with mismatched API versions */
-        info->apiVersion = PLUGIN_API_VER;
+    info->apiVersion = PLUGIN_API_VER;
 
-        //Name of the Library, used only for information
-        info->name = "Falcon I/O";
+    //Name of the Library, used only for information
+    info->name = "Falcon I/O";
 
-        //Version of the library, used only for information
-        info->libVersion = "0.2.1";
-        info->numPlugins = NUM_PLUGINS;
+    //Version of the library, used only for information
+    info->libVersion = "0.2.1";
+    info->numPlugins = NUM_PLUGINS;
 }
 
-extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
+extern "C" EXPORT int getPluginInfo (int index, Plugin::PluginInfo* info)
 {
     switch (index)
     {
@@ -82,11 +81,11 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 }
 
 #ifdef WIN32
-BOOL WINAPI DllMain(IN HINSTANCE hDllHandle,
-        IN DWORD     nReason,
-        IN LPVOID    Reserved)
+BOOL WINAPI DllMain (IN HINSTANCE hDllHandle,
+                     IN DWORD nReason,
+                     IN LPVOID Reserved)
 {
-        return TRUE;
+    return TRUE;
 }
 
 #endif

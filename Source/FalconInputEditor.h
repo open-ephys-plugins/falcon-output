@@ -35,19 +35,15 @@ class FalconInput;
 
 class FalconInputEditor : public GenericEditor
 {
-
 public:
-
     /** Constructor */
-    FalconInputEditor(GenericProcessor* parentNode);
+    FalconInputEditor (GenericProcessor* parentNode);
 
     /** Destructor */
     ~FalconInputEditor() {};
 
 private:
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FalconInputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconInputEditor);
 };
-
 
 #endif

@@ -27,9 +27,9 @@
 
 #include <DataThreadHeaders.h>
 
-#include <zmq.h>
 #include <iostream>
 #include <string>
+#include <zmq.h>
 
 const int DEFAULT_PORT = 3335;
 const String DEFAULT_ADDRESS = "127.0.0.1";
@@ -45,11 +45,9 @@ const int MAX_NUM_SAMPLES = 10000;
 */
 class FalconInput : public DataThread
 {
-
 public:
-
     /** Constructor */
-    FalconInput(SourceNode* sn);
+    FalconInput (SourceNode* sn);
 
     /** Destructor */
     ~FalconInput();
@@ -61,23 +59,22 @@ public:
     bool foundInputSource() override;
 
     /** Creates the channel info objects */
-    void updateSettings(OwnedArray<ContinuousChannel>* continuousChannels,
-        OwnedArray<EventChannel>* eventChannels,
-        OwnedArray<SpikeChannel>* spikeChannels,
-        OwnedArray<DataStream>* sourceStreams,
-        OwnedArray<DeviceInfo>* devices,
-        OwnedArray<ConfigurationObject>* configurationObjects);
+    void updateSettings (OwnedArray<ContinuousChannel>* continuousChannels,
+                         OwnedArray<EventChannel>* eventChannels,
+                         OwnedArray<SpikeChannel>* spikeChannels,
+                         OwnedArray<DataStream>* sourceStreams,
+                         OwnedArray<DeviceInfo>* devices,
+                         OwnedArray<ConfigurationObject>* configurationObjects);
 
-    void parameterValueChanged(Parameter* param) override;
+    void parameterValueChanged (Parameter* param) override;
 
     void tryToConnect();
     void closeConnection();
 
-    std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
-    static DataThread* createDataThread(SourceNode* sn);
+    std::unique_ptr<GenericEditor> createEditor (SourceNode* sn);
+    static DataThread* createDataThread (SourceNode* sn);
 
 private:
-
     /** Moves data from ZMQ message to Open Ephys data buffer*/
     bool updateBuffer() override;
 
@@ -85,7 +82,7 @@ private:
     bool startAcquisition() override;
 
     /** Stops data thread*/
-    bool stopAcquisition()  override;
+    bool stopAcquisition() override;
 
     int port = DEFAULT_PORT;
     String address = DEFAULT_ADDRESS;
@@ -105,7 +102,7 @@ private:
     uint64 event_codes[MAX_NUM_SAMPLES];
     int64 sample_numbers[MAX_NUM_SAMPLES];
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FalconInput);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconInput);
 };
 
 #endif

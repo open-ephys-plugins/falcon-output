@@ -29,20 +29,17 @@
 
 class FalconOutput;
 
-class FalconOutputEditor: public GenericEditor
+class FalconOutputEditor : public GenericEditor
 {
 public:
-
-    FalconOutputEditor(GenericProcessor *parentNode);
+    FalconOutputEditor (GenericProcessor* parentNode);
 
     virtual ~FalconOutputEditor();
 
-
 private:
+    FalconOutput* falconProcessor;
 
-    FalconOutput *falconProcessor;
-    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconOutputEditor)
 };
 
-#endif  // FALCONOUTPUTEDITOR_H_INCLUDED
+#endif // FALCONOUTPUTEDITOR_H_INCLUDED

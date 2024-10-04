@@ -22,31 +22,25 @@
 
  */
 
-
 #include "FalconOutputEditor.h"
 #include "FalconOutput.h"
 
-
-FalconOutputEditor::FalconOutputEditor(GenericProcessor *parentNode): GenericEditor(parentNode)
+FalconOutputEditor::FalconOutputEditor (GenericProcessor* parentNode) : GenericEditor (parentNode)
 {
-    falconProcessor = (FalconOutput*)parentNode;
+    falconProcessor = (FalconOutput*) parentNode;
 
     desiredWidth = 190;
 
-	addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "stream", 15, 35);
+    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "stream", 15, 35);
+    addMaskChannelsParameterEditor (Parameter::STREAM_SCOPE, "channels", 15, 65);
+    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "data_port", 15, 95);
 
-    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "channels", 15, 65);
-
-    addTextBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "data_port", 15, 95);
-
-	for (auto ed : parameterEditors)
-	{
-		ed->setSize (210, 18);
-	}
-
+    for (auto ed : parameterEditors)
+    {
+        ed->setSize (210, 18);
+    }
 }
 
 FalconOutputEditor::~FalconOutputEditor()
 {
-
 }

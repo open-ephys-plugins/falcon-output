@@ -26,24 +26,23 @@
 #define FALCONOUTPUT_H_INCLUDED
 
 #include <ProcessorHeaders.h>
-#include <queue>
-#include <zmq.h>
-#include <string.h>
-#include <iostream>
-#include <time.h>
 #include <chrono>
 #include <errno.h>
+#include <iostream>
+#include <queue>
+#include <string.h>
+#include <time.h>
+#include <zmq.h>
 
 #include "FalconOutputEditor.h"
-#include "flatbuffers/flatbuffers.h"
 #include "channel_generated.h"
+#include "flatbuffers/flatbuffers.h"
 
 #define MAX_NUM_CHANNELS 5000
 
-class FalconOutput: public GenericProcessor
+class FalconOutput : public GenericProcessor
 {
 public:
-
     /** Constructor */
     FalconOutput();
 
@@ -54,16 +53,16 @@ public:
     void registerParameters() override;
 
     /** Streams incoming data over a ZMQ socket */
-    void process(AudioBuffer<float>& continuousBuffer) override;
+    void process (AudioBuffer<float>& continuousBuffer) override;
 
     /** Updates event codes in response to incoming events */
-    void handleTTLEvent(TTLEventPtr event) override;
+    void handleTTLEvent (TTLEventPtr event) override;
 
     /** Called whenever the settings of upstream plugins have changed */
     void updateSettings() override;
 
     /** Called when a parameter is updated*/
-    void parameterValueChanged(Parameter* param) override;
+    void parameterValueChanged (Parameter* param) override;
 
     /** Called at start of acquisition*/
     bool startAcquisition() override;
@@ -71,18 +70,20 @@ public:
     AudioProcessorEditor* createEditor();
 
 private:
-
     void createSocket();
     void closeSocket();
 
-    void setPort(uint32_t new_port);
+    void setPort (uint32_t new_port);
 
-    void sendData(const float **bufferChanPtrs,
-                  int nChannels, int nSamples,
-                  int64 sampleNumber, double timestamp, int sampleRate);
+    void sendData (const float** bufferChanPtrs,
+                   int nChannels,
+                   int nSamples,
+                   int64 sampleNumber,
+                   double timestamp,
+                   int sampleRate);
 
-    void *context;
-    void *socket;
+    void* context;
+    void* socket;
 
     uint16 selectedStream;
 
@@ -97,10 +98,7 @@ private:
 
     const float* bufferPtrs[MAX_NUM_CHANNELS];
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FalconOutput);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconOutput);
 };
 
-
-
-#endif  // FALCONOUTPUT_H_INCLUDED
+#endif // FALCONOUTPUT_H_INCLUDED

@@ -22,13 +22,12 @@
 
  */
 
-
 #include "FalconOutput.h"
 
 FalconOutput::FalconOutput()
-    : GenericProcessor("Falcon Output"),
-      flatBuilder(1024),
-      selectedStream(0)
+    : GenericProcessor ("Falcon Output"),
+      flatBuilder (1024),
+      selectedStream (0)
 {
     context = zmq_ctx_new();
     socket = 0;
@@ -36,7 +35,7 @@ FalconOutput::FalconOutput()
     messageNumber = 0;
     port = 3335;
 
-    if (!socket)
+    if (! socket)
         createSocket();
 }
 
@@ -45,7 +44,7 @@ FalconOutput::~FalconOutput()
     closeSocket();
     if (context)
     {
-        zmq_ctx_destroy(context);
+        zmq_ctx_destroy (context);
         context = 0;
     }
 }
@@ -53,30 +52,30 @@ FalconOutput::~FalconOutput()
 void FalconOutput::registerParameters()
 {
     addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "stream", "Stream", "The stream to send", {}, 0, true, true);
-    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "The input channel data to send", true);
-    addIntParameter(Parameter::PROCESSOR_SCOPE, "data_port", "Port", "Port number to send data", port, 1000, 65535, true);
+    addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "The input channel data to send", true);
+    addIntParameter (Parameter::PROCESSOR_SCOPE, "data_port", "Port", "Port number to send data", port, 1000, 65535, true);
 }
 
 void FalconOutput::createSocket()
 {
-    if (!socket)
+    if (! socket)
     {
-        socket = zmq_socket(context, ZMQ_PUB);
+        socket = zmq_socket (context, ZMQ_PUB);
 
-        if (!socket)
+        if (! socket)
         {
-            LOGC("Couldn't create a socket");
-            LOGE(zmq_strerror(zmq_errno()));
-            jassert(false);
+            LOGC ("Couldn't create a socket");
+            LOGE (zmq_strerror (zmq_errno()));
+            jassert (false);
         }
 
-        auto urlstring = "tcp://*:" + std::to_string(port);
+        auto urlstring = "tcp://*:" + std::to_string (port);
 
-        if (zmq_bind(socket, urlstring.c_str()))
+        if (zmq_bind (socket, urlstring.c_str()))
         {
-            LOGC("Couldn't open data socket");
-            LOGE(zmq_strerror(zmq_errno()));
-            jassert(false);
+            LOGC ("Couldn't open data socket");
+            LOGE (zmq_strerror (zmq_errno()));
+            jassert (false);
         }
     }
 }
@@ -85,47 +84,47 @@ void FalconOutput::closeSocket()
 {
     if (socket)
     {
-        LOGD("Closing data socket");
-        zmq_close(socket);
+        LOGD ("Closing data socket");
+        zmq_close (socket);
         socket = 0;
     }
 }
 
-void FalconOutput::sendData(const float **bufferChanPtrs,
-                            int nChannels, int nSamples,
-                            int64 sampleNumber, double timestamp, int sampleRate)
+void FalconOutput::sendData (const float** bufferChanPtrs,
+                             int nChannels,
+                             int nSamples,
+                             int64 sampleNumber,
+                             double timestamp,
+                             int sampleRate)
 {
-    
     messageNumber++;
 
     // Create message
     std::vector<float> flatsamples;
-    flatsamples.reserve(nChannels * nSamples);
+    flatsamples.reserve (nChannels * nSamples);
 
     for (int ch = 0; ch < nChannels; ch++)
     {
         for (int i = 0; i < nSamples; i++)
-            flatsamples.push_back(*(*(bufferChanPtrs + ch) + i));
+            flatsamples.push_back (*(*(bufferChanPtrs + ch) + i));
     }
 
-    auto samples = flatBuilder.CreateVector(flatsamples);
-    auto event_codes = flatBuilder.CreateVector(eventCodes);
+    auto samples = flatBuilder.CreateVector (flatsamples);
+    auto event_codes = flatBuilder.CreateVector (eventCodes);
 
-    auto streamName = flatBuilder.CreateString(getDataStream(selectedStream)->getName().toStdString());
-    auto zmqBuffer = openephysflatbuffer::CreateContinuousData(flatBuilder, samples, event_codes, streamName,
-                                                               nChannels, nSamples, sampleNumber, timestamp,
-                                                               messageNumber, sampleRate);
-    flatBuilder.Finish(zmqBuffer);
+    auto streamName = flatBuilder.CreateString (getDataStream (selectedStream)->getName().toStdString());
+    auto zmqBuffer = openephysflatbuffer::CreateContinuousData (flatBuilder, samples, event_codes, streamName, nChannels, nSamples, sampleNumber, timestamp, messageNumber, sampleRate);
+    flatBuilder.Finish (zmqBuffer);
 
-    uint8_t *buf = flatBuilder.GetBufferPointer();
+    uint8_t* buf = flatBuilder.GetBufferPointer();
     int size = flatBuilder.GetSize();
 
     // Send packet
     zmq_msg_t request;
-    zmq_msg_init_size(&request, size);
-    memcpy(zmq_msg_data(&request), (void *)buf, size);
-    int size_m = zmq_msg_send(&request, socket, 0);
-    zmq_msg_close(&request);
+    zmq_msg_init_size (&request, size);
+    memcpy (zmq_msg_data (&request), (void*) buf, size);
+    int size_m = zmq_msg_send (&request, socket, 0);
+    zmq_msg_close (&request);
 
     //std::cout << "Sending packet " << messageNumber << " at " << Time::getHighResolutionTicks() << std::endl;
 
@@ -134,7 +133,7 @@ void FalconOutput::sendData(const float **bufferChanPtrs,
 
 AudioProcessorEditor* FalconOutput::createEditor()
 {
-    editor = std::make_unique<FalconOutputEditor>(this);
+    editor = std::make_unique<FalconOutputEditor> (this);
     return editor.get();
 }
 
@@ -142,7 +141,7 @@ void FalconOutput::updateSettings()
 {
 }
 
-void FalconOutput::handleTTLEvent(TTLEventPtr event)
+void FalconOutput::handleTTLEvent (TTLEventPtr event)
 {
     if (event->getStreamId() == selectedStream)
     {
@@ -151,7 +150,7 @@ void FalconOutput::handleTTLEvent(TTLEventPtr event)
         if (eventLine > 15)
             return;
 
-        int64 sampleOffset = event->getSampleNumber() - getFirstSampleNumberForBlock(selectedStream);
+        int64 sampleOffset = event->getSampleNumber() - getFirstSampleNumberForBlock (selectedStream);
         bool eventState = event->getState();
 
         for (int i = lastEventIndex; i < sampleOffset - 1; i++)
@@ -161,58 +160,58 @@ void FalconOutput::handleTTLEvent(TTLEventPtr event)
 
         if (eventState)
         {
-            lastEventCode |= uint16(1) << eventLine;
+            lastEventCode |= uint16 (1) << eventLine;
         }
-        else {
-            lastEventCode &= ~(uint16(1) << eventLine);
+        else
+        {
+            lastEventCode &= ~(uint16 (1) << eventLine);
         }
 
         //std::cout << "Received event on line " << eventLine << "; new code = " << lastEventCode << ", sample offset = " << sampleOffset << std::endl;
 
         lastEventIndex = sampleOffset;
         eventCodes[lastEventIndex] = lastEventCode;
-
     }
 }
 
-void FalconOutput::process(AudioBuffer<float>& buffer)
+void FalconOutput::process (AudioBuffer<float>& buffer)
 {
-    if (!socket)
+    if (! socket)
         createSocket();
 
-    eventCodes.resize(getNumSamplesInBlock(selectedStream));
+    eventCodes.resize (getNumSamplesInBlock (selectedStream));
     lastEventIndex = 0;
     checkForEvents();
 
-    for (int i = lastEventIndex; i < getNumSamplesInBlock(selectedStream); i++)
+    for (int i = lastEventIndex; i < getNumSamplesInBlock (selectedStream); i++)
         eventCodes[i] = lastEventCode;
 
     for (auto stream : dataStreams)
-    {        
+    {
         if ((*stream)["enable_stream"]
             && stream->getStreamId() == selectedStream)
         {
             // Send the sample number of the first sample in the buffer block
-            auto selectedChannels = static_cast<MaskChannelsParameter*>(stream->getParameter("channels"))->getArrayValue();
-            int64 sampleNum = getFirstSampleNumberForBlock(selectedStream) ;
-            double timestamp = double(Time::getHighResolutionTicks()) / double(Time::getHighResolutionTicksPerSecond());
-            int numSamples = getNumSamplesInBlock(selectedStream);
+            auto selectedChannels = static_cast<MaskChannelsParameter*> (stream->getParameter ("channels"))->getArrayValue();
+            int64 sampleNum = getFirstSampleNumberForBlock (selectedStream);
+            double timestamp = double (Time::getHighResolutionTicks()) / double (Time::getHighResolutionTicksPerSecond());
+            int numSamples = getNumSamplesInBlock (selectedStream);
             int numChannels = selectedChannels.size();
 
-            if(numSamples == 0)
+            if (numSamples == 0)
                 continue;
 
             int i = 0;
-            for(auto chan : selectedChannels)
+            for (auto chan : selectedChannels)
             {
-                int globalChanIndex = stream->getContinuousChannels().getUnchecked(chan)->getGlobalIndex();
+                int globalChanIndex = stream->getContinuousChannels().getUnchecked (chan)->getGlobalIndex();
 
-                bufferPtrs[i] = buffer.getReadPointer(globalChanIndex);
+                bufferPtrs[i] = buffer.getReadPointer (globalChanIndex);
 
                 i++;
             }
 
-            sendData(bufferPtrs, numChannels, numSamples, sampleNum, timestamp, (int)stream->getSampleRate());
+            sendData (bufferPtrs, numChannels, numSamples, sampleNum, timestamp, (int) stream->getSampleRate());
         }
     }
 }
@@ -224,28 +223,27 @@ bool FalconOutput::startAcquisition()
     return true;
 }
 
-void FalconOutput::parameterValueChanged(Parameter* param)
+void FalconOutput::parameterValueChanged (Parameter* param)
 {
-    if (param->getName().equalsIgnoreCase("stream"))
+    if (param->getName().equalsIgnoreCase ("stream"))
     {
         String streamKey = param->getValueAsString();
-        selectedStream = getDataStream(streamKey)->getStreamId();
+        selectedStream = getDataStream (streamKey)->getStreamId();
     }
-    else if (param->getName().equalsIgnoreCase("data_port"))
+    else if (param->getName().equalsIgnoreCase ("data_port"))
     {
-        int dataPort = static_cast<IntParameter*>(param)->getIntValue();
-        setPort(dataPort);
+        int dataPort = static_cast<IntParameter*> (param)->getIntValue();
+        setPort (dataPort);
     }
 }
 
-void FalconOutput::setPort(uint32_t new_port)
+void FalconOutput::setPort (uint32_t new_port)
 {
     if (port != new_port)
     {
-        LOGC("Falcon Output setting port to ", new_port);
+        LOGC ("Falcon Output setting port to ", new_port);
         port = new_port;
         closeSocket();
         createSocket();
     }
 }
-

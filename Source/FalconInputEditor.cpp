@@ -25,20 +25,20 @@
 #include "FalconInputEditor.h"
 #include "FalconInput.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
-FalconInputEditor::FalconInputEditor(GenericProcessor* parentNode) : GenericEditor(parentNode)
+FalconInputEditor::FalconInputEditor (GenericProcessor* parentNode) : GenericEditor (parentNode)
 {
     desiredWidth = 200;
 
-    addTextBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "address", 15, 30);
-    addTextBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "port", 15, 55);
-    addTextBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "num_chan", 15, 80);
-    addTextBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "sample_rate", 15, 105);
+    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "address", 15, 30);
+    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "port", 15, 55);
+    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "num_chan", 15, 80);
+    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "sample_rate", 15, 105);
 
     for (auto ed : parameterEditors)
     {
-        ed->setSize(210, 18);
+        ed->setSize (210, 18);
     }
 }
