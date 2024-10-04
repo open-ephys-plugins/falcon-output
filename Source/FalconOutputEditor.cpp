@@ -31,17 +31,18 @@ FalconOutputEditor::FalconOutputEditor(GenericProcessor *parentNode): GenericEdi
 {
     falconProcessor = (FalconOutput*)parentNode;
 
-    desiredWidth = 200;
+    desiredWidth = 190;
 
-	streamSelection = std::make_unique<ComboBox>("Stream Selector");
-    streamSelection->setBounds(30, 40, 140, 20);
-    streamSelection->setTooltip("Output stream");
-    streamSelection->addListener(this);
-    addAndMakeVisible(streamSelection.get());
+	addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "stream", 15, 35);
 
-    addMaskChannelsParameterEditor("channels", 15, 90);
+    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "channels", 15, 65);
 
-    addTextBoxParameterEditor("data_port", 110, 70);
+    addTextBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "data_port", 15, 95);
+
+	for (auto ed : parameterEditors)
+	{
+		ed->setSize (210, 18);
+	}
 
 }
 
@@ -49,83 +50,3 @@ FalconOutputEditor::~FalconOutputEditor()
 {
 
 }
-
-void FalconOutputEditor::comboBoxChanged(ComboBox* cb)
-{
-    if (cb == streamSelection.get())
-    {
-        setOutputStream(cb->getSelectedId());
-    }
-}
-	
-void FalconOutputEditor::startAcquisition()
-{
-	streamSelection->setEnabled(false);
-}
-
-
-void FalconOutputEditor::stopAcquisition()
-{
-	streamSelection->setEnabled(true);
-}
-
-
-void FalconOutputEditor::updateStreamSelectorOptions()
-{
-    bool needsUpdate = false;
-	int subprocessorToSet = streamSelection->getSelectedId();
-
-	for (auto stream: falconProcessor->getDataStreams())
-	{
-		if(!inputStreamIds.contains(stream->getStreamId()))
-		{
-			needsUpdate = true;
-			break;
-		}
-	}
-
-	if(falconProcessor->getNumDataStreams() != inputStreamIds.size())
-		needsUpdate = true;
-
-	if(needsUpdate || subprocessorToSet == 0)
-	{	
-		inputStreamIds.clear();
-		streamSelection->clear(dontSendNotification);
-
-		// Add all datastreams to combobox
-		for (auto stream: falconProcessor->getDataStreams())
-		{
-			int streamID = stream->getStreamId();
-
-			inputStreamIds.add(streamID);
-			streamSelection->addItem("[" + String(stream->getSourceNodeId()) + "] " +
-									 stream->getName(), streamID);
-		}
-
-		// Check and select datastream if available
-		if (inputStreamIds.size() > 0)
-		{
-			if(!inputStreamIds.contains(subprocessorToSet))
-				subprocessorToSet = inputStreamIds[0];
-
-			streamSelection->setSelectedId(subprocessorToSet, dontSendNotification);
-		}
-		else
-		{
-			subprocessorToSet = -1;
-		}
-
-		setOutputStream(subprocessorToSet);
-	}
-}
-
-
-void FalconOutputEditor::setOutputStream(int index)
-{
-	if (index > 0)
-		falconProcessor->setSelectedStream(index);
-	else
-		falconProcessor->setSelectedStream(0);
-}
-
-

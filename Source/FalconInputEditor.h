@@ -33,54 +33,18 @@
 
 class FalconInput;
 
-class FalconInputEditor : public GenericEditor, 
-                            public Label::Listener,
-                            public Button::Listener
+class FalconInputEditor : public GenericEditor
 {
 
 public:
 
     /** Constructor */
-    FalconInputEditor(GenericProcessor* parentNode, FalconInput *node);
+    FalconInputEditor(GenericProcessor* parentNode);
 
-    /** Button listener callback, called by button when pressed. */
-    void buttonClicked(Button* button);
-
-    /** Called by processor graph in beginning of the acqusition, disables editor completly. */
-    void startAcquisition();
-
-    /** Called by processor graph at the end of the acqusition, reenables editor completly. */
-    void stopAcquisition();
-
-    /** Called when configuration is saved. Adds editors config to xml. */
-    void saveCustomParametersToXml(XmlElement* xml) override;
-
-    /** Called when configuration is loaded. Reads editors config from xml. */
-    void loadCustomParametersFromXml(XmlElement* xml) override;
-
-    /** Called when label is changed */
-    void labelTextChanged(Label* label);
+    /** Destructor */
+    ~FalconInputEditor() {};
 
 private:
-
-    // Address
-    ScopedPointer<Label> addressLabel;
-    ScopedPointer<Label> addressInput;
-
-    // Port
-    ScopedPointer<Label> portLabel;
-    ScopedPointer<Label> portInput;
-
-    // Chans
-    ScopedPointer<Label> channelCountLabel;
-    ScopedPointer<Label> channelCountInput;
-
-    // Fs
-    ScopedPointer<Label> sampleRateLabel;
-    ScopedPointer<Label> sampleRateInput;
-
-    // Parent node
-    FalconInput* node;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FalconInputEditor);
 };

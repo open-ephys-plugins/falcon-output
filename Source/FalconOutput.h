@@ -50,6 +50,9 @@ public:
     /** Destructor*/
     ~FalconOutput();
 
+    /** Registers the parameters */
+    void registerParameters() override;
+
     /** Streams incoming data over a ZMQ socket */
     void process(AudioBuffer<float>& continuousBuffer) override;
 
@@ -66,9 +69,6 @@ public:
     bool startAcquisition() override;
 
     AudioProcessorEditor* createEditor();
-
-    /** Updates the output stream*/
-	void setSelectedStream(int idx);
 
 private:
 
@@ -91,7 +91,6 @@ private:
     uint32_t port;
     flatbuffers::FlatBufferBuilder flatBuilder;
 
-    Array<int> selectedChannels;
     std::vector<uint16> eventCodes;
     uint16 lastEventCode;
     int64 lastEventIndex;

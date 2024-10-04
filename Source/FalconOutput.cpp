@@ -38,11 +38,6 @@ FalconOutput::FalconOutput()
 
     if (!socket)
         createSocket();
-
-    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "The input channel data to send", true);
-
-    addIntParameter(Parameter::GLOBAL_SCOPE, "data_port", "Port number to send data", port, 1000, 65535, true);
-
 }
 
 FalconOutput::~FalconOutput()
@@ -53,6 +48,13 @@ FalconOutput::~FalconOutput()
         zmq_ctx_destroy(context);
         context = 0;
     }
+}
+
+void FalconOutput::registerParameters()
+{
+    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "stream", "Stream", "The stream to send", {}, 0, true, true);
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "The input channel data to send", true);
+    addIntParameter(Parameter::PROCESSOR_SCOPE, "data_port", "Port", "Port number to send data", port, 1000, 65535, true);
 }
 
 void FalconOutput::createSocket()
@@ -138,12 +140,6 @@ AudioProcessorEditor* FalconOutput::createEditor()
 
 void FalconOutput::updateSettings()
 {
-
-    int dataPort = getParameter("data_port")->getValue();
-    setPort(dataPort);
-
-    FalconOutputEditor * ed = (FalconOutputEditor*) getEditor();
-    ed->updateStreamSelectorOptions();
 }
 
 void FalconOutput::handleTTLEvent(TTLEventPtr event)
@@ -197,6 +193,7 @@ void FalconOutput::process(AudioBuffer<float>& buffer)
             && stream->getStreamId() == selectedStream)
         {
             // Send the sample number of the first sample in the buffer block
+            auto selectedChannels = static_cast<MaskChannelsParameter*>(stream->getParameter("channels"))->getArrayValue();
             int64 sampleNum = getFirstSampleNumberForBlock(selectedStream) ;
             double timestamp = double(Time::getHighResolutionTicks()) / double(Time::getHighResolutionTicksPerSecond());
             int numSamples = getNumSamplesInBlock(selectedStream);
@@ -229,25 +226,16 @@ bool FalconOutput::startAcquisition()
 
 void FalconOutput::parameterValueChanged(Parameter* param)
 {
-    if (param->getName().equalsIgnoreCase("Channels"))
-    {   
-        if(param->getStreamId() == selectedStream)
-            selectedChannels = static_cast<MaskChannelsParameter*>(param)->getArrayValue();
+    if (param->getName().equalsIgnoreCase("stream"))
+    {
+        String streamKey = param->getValueAsString();
+        selectedStream = getDataStream(streamKey)->getStreamId();
     }
     else if (param->getName().equalsIgnoreCase("data_port"))
     {
         int dataPort = static_cast<IntParameter*>(param)->getIntValue();
         setPort(dataPort);
     }
-}
-
-void FalconOutput::setSelectedStream(int idx)
-{
-    selectedStream = idx;
-    
-    // Set the selected channels for the selected stream
-    if (selectedStream > 0)
-        parameterValueChanged(getDataStream(selectedStream)->getParameter("Channels"));
 }
 
 void FalconOutput::setPort(uint32_t new_port)

@@ -54,6 +54,9 @@ public:
     /** Destructor */
     ~FalconInput();
 
+    /** Registers the parameters */
+    void registerParameters() override;
+
     /** Returns true if socket is connected */
     bool foundInputSource() override;
 
@@ -65,11 +68,7 @@ public:
         OwnedArray<DeviceInfo>* devices,
         OwnedArray<ConfigurationObject>* configurationObjects);
 
-    int port = DEFAULT_PORT;
-    String address = DEFAULT_ADDRESS;
-    float sample_rate = DEFAULT_SAMPLE_RATE;
-    int num_channels = DEFAULT_NUM_CHANNELS;
-
+    void parameterValueChanged(Parameter* param) override;
 
     void tryToConnect();
     void closeConnection();
@@ -87,6 +86,11 @@ private:
 
     /** Stops data thread*/
     bool stopAcquisition()  override;
+
+    int port = DEFAULT_PORT;
+    String address = DEFAULT_ADDRESS;
+    float sample_rate = DEFAULT_SAMPLE_RATE;
+    int num_channels = DEFAULT_NUM_CHANNELS;
 
     int64 total_samples;
 

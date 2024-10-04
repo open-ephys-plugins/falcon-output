@@ -54,7 +54,7 @@ FalconInput::FalconInput(SourceNode* sn) : DataThread(sn),
 std::unique_ptr<GenericEditor> FalconInput::createEditor(SourceNode* sn)
 {
 
-    std::unique_ptr<FalconInputEditor> editor = std::make_unique<FalconInputEditor>(sn, this);
+    std::unique_ptr<FalconInputEditor> editor = std::make_unique<FalconInputEditor>(sn);
 
     return editor;
 }
@@ -64,6 +64,15 @@ std::unique_ptr<GenericEditor> FalconInput::createEditor(SourceNode* sn)
 FalconInput::~FalconInput()
 {
     closeConnection();
+}
+
+
+void FalconInput::registerParameters()
+{
+    addStringParameter(Parameter::PROCESSOR_SCOPE, "address", "Address", "The IP address of the Falcon Output plugin", DEFAULT_ADDRESS, true);
+    addIntParameter(Parameter::PROCESSOR_SCOPE, "port", "Port", "The port number of the Falcon Output plugin", port, 1024, 65535, true);
+    addIntParameter(Parameter::PROCESSOR_SCOPE, "num_chan", "Channels", "The number of channels to expect", num_channels, 1, MAX_NUM_CHANNELS, true);
+    addFloatParameter(Parameter::PROCESSOR_SCOPE, "sample_rate", "Sample Rate", "The sample rate of the data stream", "Hz", sample_rate, 1, 44100, 1.0f, true);
 }
 
 
@@ -195,6 +204,40 @@ bool FalconInput::stopAcquisition()
     return true;
 }
 
+void FalconInput::parameterValueChanged(Parameter* param)
+{
+    if (param->getName().equalsIgnoreCase("address"))
+    {
+        String newAddress = param->getValueAsString();
+
+        if (newAddress != address)
+        {
+            address = newAddress;
+            tryToConnect();
+        }
+    }
+    else if (param->getName().equalsIgnoreCase("port"))
+    {
+        int newPort = static_cast<IntParameter*>(param)->getIntValue();
+
+        if (newPort != port)
+        {
+            port = newPort;
+            tryToConnect();
+        }
+    }
+    else if (param->getName().equalsIgnoreCase("num_chan"))
+    {
+        num_channels = static_cast<IntParameter*>(param)->getIntValue();
+        CoreServices::updateSignalChain(sn);
+    }
+    else if (param->getName().equalsIgnoreCase("sample_rate"))
+    {
+        sample_rate = static_cast<FloatParameter*>(param)->getFloatValue();
+        CoreServices::updateSignalChain(sn);
+    }
+}
+
 bool FalconInput::updateBuffer()
 {
    
@@ -237,10 +280,10 @@ bool FalconInput::updateBuffer()
             {
                 if (offset < d->size())
                 {
-                    samples[num_channels * i + ch] = d->Get(offset);
+                    samples[ch * num_samples + i] = d->Get(offset);
                 }
                 else {
-                    samples[num_channels * i + ch] = 0;
+                    samples[ch * num_samples + i] = 0;
                 }
                 
                 offset++;

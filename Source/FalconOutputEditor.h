@@ -29,10 +29,7 @@
 
 class FalconOutput;
 
-struct StreamApplication;
-
-class FalconOutputEditor: public GenericEditor,
-                          public ComboBox::Listener
+class FalconOutputEditor: public GenericEditor
 {
 public:
 
@@ -40,30 +37,12 @@ public:
 
     virtual ~FalconOutputEditor();
 
-    /** Sets the output stream */
-    void comboBoxChanged(ComboBox *cb) override;
-
-	void startAcquisition() override;
-
-	void stopAcquisition()  override;
-
-    /** Updates available streams*/
-	void updateStreamSelectorOptions();
-
 
 private:
 
     FalconOutput *falconProcessor;
-
-    std::unique_ptr<ComboBox> streamSelection;
-
-    Array<int> inputStreamIds;
-
-    void setOutputStream(int index);
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconOutputEditor)
-
-    
 };
 
 #endif  // FALCONOUTPUTEDITOR_H_INCLUDED
