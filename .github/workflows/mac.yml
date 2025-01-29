@@ -2,11 +2,6 @@ name: mac
 
 on: 
   push:
-    paths:
-    - '.github/workflows/**'
-    - 'libs/**'
-    - 'Source/**'
-    - 'CMakeLists.txt'
 
 jobs:
 
