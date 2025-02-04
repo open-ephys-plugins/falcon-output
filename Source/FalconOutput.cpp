@@ -75,6 +75,7 @@ void FalconOutput::createSocket()
         {
             LOGC ("Couldn't open data socket");
             LOGE (zmq_strerror (zmq_errno()));
+            CoreServices::sendStatusMessage ("Couldn't open data socket on port " + String (port));
             jassert (false);
         }
     }
@@ -228,7 +229,8 @@ void FalconOutput::parameterValueChanged (Parameter* param)
     if (param->getName().equalsIgnoreCase ("stream"))
     {
         String streamKey = param->getValueAsString();
-        selectedStream = getDataStream (streamKey)->getStreamId();
+        if (auto* stream = getDataStream (streamKey))
+            selectedStream = stream->getStreamId();
     }
     else if (param->getName().equalsIgnoreCase ("data_port"))
     {
