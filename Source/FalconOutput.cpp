@@ -189,8 +189,7 @@ void FalconOutput::process (AudioBuffer<float>& buffer)
 
     for (auto stream : dataStreams)
     {
-        if ((*stream)["enable_stream"]
-            && stream->getStreamId() == selectedStream)
+        if (stream->getStreamId() == selectedStream)
         {
             // Send the sample number of the first sample in the buffer block
             auto selectedChannels = static_cast<MaskChannelsParameter*> (stream->getParameter ("channels"))->getArrayValue();
