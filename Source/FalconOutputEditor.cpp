@@ -31,9 +31,18 @@ FalconOutputEditor::FalconOutputEditor (GenericProcessor* parentNode) : GenericE
 
     desiredWidth = 190;
 
-    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "stream", 15, 35);
-    addMaskChannelsParameterEditor (Parameter::STREAM_SCOPE, "channels", 15, 65);
-    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "data_port", 15, 95);
+    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "stream", 15, 34);
+    addMaskChannelsParameterEditor (Parameter::STREAM_SCOPE, "channels", 15, 58);
+    addTextBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "data_port", 15, 82);
+
+    ipAddressLabel = std::make_unique<Label> ("ipAddress", "Address");
+    ipAddressLabel->setBounds (123, 105, 55, 20);
+    ipAddressLabel->setFont (FontOptions ("Inter", "Regular", 13));
+    addAndMakeVisible (ipAddressLabel.get());
+
+    ipAddress = std::make_unique<Label> ("ipAddress", IPAddress::getLocalAddress().toString());
+    ipAddress->setBounds (15, 105, 180, 20);
+    addAndMakeVisible (ipAddress.get());
 
     for (auto ed : parameterEditors)
     {

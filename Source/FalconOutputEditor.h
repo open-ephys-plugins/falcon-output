@@ -39,6 +39,9 @@ public:
 private:
     FalconOutput* falconProcessor;
 
+    std::unique_ptr<Label> ipAddress;
+    std::unique_ptr<Label> ipAddressLabel;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FalconOutputEditor)
 };
 
