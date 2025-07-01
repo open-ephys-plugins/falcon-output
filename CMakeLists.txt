@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.15)
 if (NOT DEFINED GUI_BASE_DIR)
 	if (DEFINED ENV{GUI_BASE_DIR})
 		set(GUI_BASE_DIR $ENV{GUI_BASE_DIR})
