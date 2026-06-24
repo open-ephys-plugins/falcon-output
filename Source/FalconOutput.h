@@ -90,6 +90,7 @@ private:
     int flag;
     int messageNumber;
     uint32_t port;
+    bool useDataTimestamp;
     flatbuffers::FlatBufferBuilder flatBuilder;
 
     std::vector<uint16> eventCodes;
