@@ -34,6 +34,7 @@ FalconOutput::FalconOutput()
     flag = 0;
     messageNumber = 0;
     port = 3335;
+    useDataTimestamp = false;
 
     if (! socket)
         createSocket();
@@ -54,6 +55,7 @@ void FalconOutput::registerParameters()
     addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "stream", "Stream", "The stream to send", {}, 0, true, true);
     addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "The input channel data to send", true);
     addIntParameter (Parameter::PROCESSOR_SCOPE, "data_port", "Port", "Port number to send data", port, 1000, 65535, true);
+    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "use_data_timestamp", "Data Time", "Use timestamp from data stream instead of host wall-clock time", false, true);
 }
 
 void FalconOutput::createSocket()
@@ -194,7 +196,10 @@ void FalconOutput::process (AudioBuffer<float>& buffer)
             // Send the sample number of the first sample in the buffer block
             auto selectedChannels = static_cast<MaskChannelsParameter*> (stream->getParameter ("channels"))->getArrayValue();
             int64 sampleNum = getFirstSampleNumberForBlock (selectedStream);
-            double timestamp = double (Time::getHighResolutionTicks()) / double (Time::getHighResolutionTicksPerSecond());
+            // Either the source/data timestamp (same value written to disk by the Record Node) or the host wall clock, per the UI toggle.
+            double timestamp = useDataTimestamp
+                                   ? getFirstTimestampForBlock (selectedStream)
+                                   : double (Time::getHighResolutionTicks()) / double (Time::getHighResolutionTicksPerSecond());
             int numSamples = getNumSamplesInBlock (selectedStream);
             int numChannels = selectedChannels.size();
 
@@ -235,6 +240,10 @@ void FalconOutput::parameterValueChanged (Parameter* param)
     {
         int dataPort = static_cast<IntParameter*> (param)->getIntValue();
         setPort (dataPort);
+    }
+    else if (param->getName().equalsIgnoreCase ("use_data_timestamp"))
+    {
+        useDataTimestamp = static_cast<BooleanParameter*> (param)->getBoolValue();
     }
 }
 
